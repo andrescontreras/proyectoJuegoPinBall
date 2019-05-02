@@ -27,6 +27,12 @@ server.listen(port, function () {
   console.log("Listen in port: ", port);
 });
 
+module.exports = {
+  getIo: function () {
+      console.log("inicio");
+      return io;
+  }
+}
 
 /*
   ==============================================================
@@ -36,4 +42,4 @@ server.listen(port, function () {
 */
 // eslint-disable-next-line no-unused-vars
 var arduino = require('./ArduinoController');
-//arduino.iniciar();
+arduino.iniciar();
