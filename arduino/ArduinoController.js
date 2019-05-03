@@ -1,4 +1,3 @@
-
 // eslint-disable-next-line no-unused-vars
 module.exports = {
     iniciar: function () {
@@ -12,6 +11,7 @@ function iniciar() {
     var io = require('./SocketController');
     var five = require("johnny-five"),
         board, buttonL, buttonR;
+    var SocketController = io.getIo();
 
     board = new five.Board();
 
@@ -38,7 +38,7 @@ function iniciar() {
         // "down" the button is pressed
         buttonL.on("down", function () {
             console.log("Ldown");
-            io.emit('messages', "Ldown");
+            SocketController.emit('messages', "Ldown");
         });
 
         // "hold" the button is pressed for specified time.
@@ -46,19 +46,19 @@ function iniciar() {
         //        set
         buttonL.on("hold", function () {
             console.log("Lhold");
-            io.emit('messages', "Lhold");
+            SocketController.emit('messages', "Lhold");
         });
 
         // "up" the button is released
         buttonL.on("up", function () {
             console.log("Lup");
-            io.emit('messages', "Lup");
+            SocketController.emit('messages', "Lup");
         });
 
         // "down" the button is pressed
         buttonR.on("down", function () {
             console.log("Rdown");
-            io.emit('messages', "Rdown");
+            SocketController.emit('messages', "Rdown");
         });
 
         // "hold" the button is pressed for specified time.
@@ -66,14 +66,16 @@ function iniciar() {
         //        set
         buttonR.on("hold", function () {
             console.log("Rhold");
-            io.emit('messages', "Rhold");
+            SocketController.emit('messages', "Rhold");
         });
 
         // "up" the button is released
         buttonR.on("up", function () {
             console.log("Rup");
-            io.emit('messages', "Rup");
+            SocketController.emit('messages', "Rup");
         });
     });
+
+    // aaaaas
 
 }
