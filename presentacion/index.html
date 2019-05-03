@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Socket</title>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Socket</title>
+  
     <link href="./css/styles.css" rel="stylesheet" type="text/css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/socket.js"></script>
-  </head>
-  <body>
-    <h1>Socket</h1>
-    <ul id="messages"></ul>
     
-    
-    <br />
-    <form onsubmit="return addMessage(this)">
-      <input type="text" name="" id="username" placeholder="nombre" />
-      <input type="text" name="" id="texto" placeholder="texto" />
-      <input type="submit" value="Enviar" />
-    </form>
-  </body>
+
+</head>
+
+<body>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js "></script>-->
+  <script src="./js/three.js"></script>
+  <script src="./js/OrbitControls.js"></script>
+  <script src="./js/tablero.js"></script>
+
+
+  <h1>Socket</h1>
+  <ul id="messages"></ul>
+  <br />
+  <form onsubmit="return addMessage(this)">
+    <input type="text" name="" id="username" placeholder="nombre" />
+    <input type="text" name="" id="texto" placeholder="texto" />
+    <input type="submit" value="Enviar" />
+  </form>
+
+
+</body>
+
 </html>
