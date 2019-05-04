@@ -10,12 +10,14 @@ camera.position.set(0, 190, 125);
 var controls = new THREE.OrbitControls(camera);
 controls.minDistance = 20;
 controls.maxDistance = 200;
+var geometry,material,mesh;
 var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad,geometryRPad,geometryLPad,materialRPad,materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var vy = 0, vx = 0, gravity = 0.3;
+var bumper;
 
 crearTablero();
 crearPared(70, 15, -20, 0, 0, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
@@ -24,6 +26,21 @@ crearPared(40, 15, 0, 0, -35, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_textur
 crearPared(40, 15, 0, 0, 35, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
 crearPared(40, 70, 0, -7.5, 0, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
 crearPelota();
+
+/* Debe ir en socket.io
+var socket = io.connect(null, { 'forceNew': true });
+socket.on('messages', function (data) {
+    console.log("En tablero imprimo "+data);
+    if(data == "Ldown")
+        lPadUp=true;
+    if(data == "Lup")
+        lPadUp=false;
+    if(data == "Rdown")
+        rPadUp=true;
+    if(data =="Rup")
+        rPadUp=false;
+    //render(data);
+});*/
 document.onkeydown = handleKeyDown;
 document.onkeyup = handleKeyUp;
 
@@ -59,7 +76,7 @@ var render = function () {
     renderer.render(scene, camera);
 };
 function crearTablero() {
-    Mat = new THREE.MeshPhongMaterial({ color: 0xee9933, specular: 0x885533, emissive: 0x553311, shininess: 50 }); //, opacity: 0.67, transparent: true
+    var Mat = new THREE.MeshPhongMaterial({ color: 0xee9933, specular: 0x885533, emissive: 0x553311, shininess: 50 }); //, opacity: 0.67, transparent: true
 
     // Estructura del tablero
     var shape = new THREE.Shape();
@@ -95,8 +112,6 @@ function crearTablero() {
     var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
     Mesh = new THREE.Mesh(geometry, Mat);
-    Mesh.receiveShadow = true;
-    Mesh.castShadow = true;
     Mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     Mesh.position.set(0, 0, 0);
     //Mesh.visible = false;
@@ -117,14 +132,19 @@ function crearTablero() {
     piso.name = "piso";
     scene.add(piso);
 
+    //Rebotes
+    crearRebotes(7, 7, 6, 8, 15.5, 5.6, -42.5);//Ultimos tres son Pos en x,y,z
+    crearRebotes(7, 7, 6, 8, -15.5, 5.6, -42.5);//Ultimos tres son Pos en x,y,z
+    crearRebotes(7, 7, 6, 8, 0, 5.6, -65.5);//Ultimos tres son Pos en x,y,z
+
     /*
     var geometryTecho = new THREE.BoxGeometry(130, 4, 180);
     var meshTecho= new THREE.Mesh(geometryTecho, materialPiso );
 	meshTecho.position.set( 2.5, 12.75, -1 );
-	meshTecho.visible = false; // Pysijs bleibt erhalten
+	meshTecho.visible = false; //
     scene.add( meshTecho ); 
     */
-    // ------------------------------------- Paddles -----------------------------------
+    // ------------------------------------- Palancas -----------------------------------
     shape = new THREE.Shape();
     shape.moveTo(-15, -1.5);
     shape.lineTo(0, -3);
@@ -186,6 +206,13 @@ function crearPelota(ObjetoPelota) {
     scene.add(pelota);
     pelotas.push(pelota);
     pelota = null;
+}
+function crearRebotes(radioS,radioI,height,segRad,posX,posY,posZ){
+    bumper = new THREE.CylinderGeometry(radioS,radioI,height,segRad); //RadioArriba,RadioAbajo,Altura,SegmentosRadiales
+    material = new THREE.MeshPhongMaterial({ color: 0x666666, specular: 0x999999, emissive: 0x000000, shininess: 10});
+    mesh = new THREE.Mesh( bumper, material );
+	mesh.position.set( posX, posY, posZ );
+	scene.add( mesh );
 }
 function handleKeyDown(e) {
     console.log("Entro oprimo hacia abajo");
