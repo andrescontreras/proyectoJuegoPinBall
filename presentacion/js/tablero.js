@@ -266,6 +266,30 @@ function crearRebotesTriangulares() {
     mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     mesh.position.set(-70, 2, -2);
     scene.add(mesh);
+
+    Shp = new THREE.Shape();
+    Shp.moveTo(0,0);
+    Shp.lineTo(0,-20);
+    Shp.lineTo(30,-35);
+    Shp.lineTo(0,0);
+    extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+    geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
+    mesh.position.set(-45, 2, 25);
+    scene.add(mesh);
+
+    Shp = new THREE.Shape();
+    Shp.moveTo(0,0);
+    Shp.lineTo(0,-20);
+    Shp.lineTo(-30,-35);
+    Shp.lineTo(0,0);
+    extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+    geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
+    mesh.position.set(45, 2, 25);
+    scene.add(mesh);
 }
 function handleKeyDown(e) {
     console.log("Entro oprimo hacia abajo");
