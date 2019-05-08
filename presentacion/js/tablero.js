@@ -4,30 +4,36 @@ var camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-//camera.position.z = 200;
+//camera.position.z = 400;
 //camera.position.y = 70;
-camera.position.set(0, 190, 125);
+camera.position.set(200, 90, 350);
 var controls = new THREE.OrbitControls(camera);
 controls.minDistance = 20;
 controls.maxDistance = 200;
-var geometry,material,mesh;
+var geometry, material, mesh;
 var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
-var rPad, lPad,geometryRPad,geometryLPad,materialRPad,materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
+var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var vy = 0, vx = 0, gravity = 0.3;
 var bumper;
 
+var light = new THREE.DirectionalLight(0xffffff);
+light.position.set(-200, 30, 100).normalize();
+scene.add(light);
+
 crearTablero();
-crearPared(70, 15, -20, 0, 0, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
-crearPared(70, 15, 20, 0, 0, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
-crearPared(40, 15, 0, 0, -35, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
-crearPared(40, 15, 0, 0, 35, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
-crearPared(40, 70, 0, -7.5, 0, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
+crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
+crearPared(300, 15, 85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
+crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
+crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
+//crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
 crearPelota();
 
-/* Debe ir en socket.io
+//En la funcion de socket, llamar una funcion de aca que actualice el lPadUp y rPadUp
+
+/* Debe ir en socket.js
 var socket = io.connect(null, { 'forceNew': true });
 socket.on('messages', function (data) {
     console.log("En tablero imprimo "+data);
@@ -39,7 +45,6 @@ socket.on('messages', function (data) {
         rPadUp=true;
     if(data =="Rup")
         rPadUp=false;
-    //render(data);
 });*/
 document.onkeydown = handleKeyDown;
 document.onkeyup = handleKeyUp;
@@ -48,8 +53,7 @@ document.onkeyup = handleKeyUp;
 
 var render = function () {
     requestAnimationFrame(render);
-    //document.addEventListener('keydown', handleKeyDown, false);
-    //document.addEventListener('keydown', handleKeyUp, false);
+    /*
     //Pongo la logica de las palancas aca
     if (lPadUp) {
         if (lPad.rotation.y <= 0.6764) {
@@ -70,7 +74,7 @@ var render = function () {
             rPad.rotation.y += 0.1;
         }
     }
-
+*/
 
 
     renderer.render(scene, camera);
@@ -80,62 +84,60 @@ function crearTablero() {
 
     // Estructura del tablero
     var shape = new THREE.Shape();
-
     shape.moveTo(15, -90);
     shape.lineTo(57, -62.75);
-    shape.lineTo(57, -85);
+    shape.lineTo(57, -90);
     shape.lineTo(63, -85);
-    shape.lineTo(63, 30);
-    shape.bezierCurveTo(63, 109, -58, 109, -58, 30);
-
-    shape.lineTo(-58, 25);
-    shape.lineTo(-50, 17.5);
-    shape.lineTo(-58, 0);
-
-    shape.lineTo(-58, -61.75);
+    shape.lineTo(63, 85);
+    shape.bezierCurveTo(105, //Punto 2 X
+        180,//Punto 2 Y
+        -3, //Punto 1 X
+        180, //Punto 1 Y
+        40, //CurrentPoint X
+        85); // CurrentPoint Y
+    shape.lineTo(-48, 85);
+    shape.bezierCurveTo(15, //Punto 2 X
+        180,//Punto 2 Y
+        -93, //Punto 1 X
+        180, //Punto 1 Y
+        -80, //CurrentPoint X
+        85); // CurrentPoint Y
+    shape.lineTo(-65, 47.5);
+    shape.lineTo(-80, 0);
+    shape.lineTo(-65, -20);
+    shape.lineTo(-65, -62.75);
     shape.lineTo(-15, -90);
-    shape.lineTo(-60, -90);
-    shape.lineTo(-60, 90);
-    shape.lineTo(65, 90);
-    shape.lineTo(65, -90);
-    shape.lineTo(15, -90);
 
-    var extrudeSettings = {
-        depth: 10,
-        bevelEnabled: true,
-        bevelSegments: 2,
-        bevelSize: 0.5,
-        bevelThickness: 0.5,
-        curveSegments: 35
-    };
+    var points = shape.getPoints();
 
-    var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var material = new THREE.LineBasicMaterial({ color: 0xffffff });
 
-    Mesh = new THREE.Mesh(geometry, Mat);
-    Mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
-    Mesh.position.set(0, 0, 0);
-    //Mesh.visible = false;
-    scene.add(Mesh);
-    shape = new THREE.Shape();
-    shape.moveTo(-19, 3);
-    shape.lineTo(19, 3);
-    shape.lineTo(19, 0);
-    shape.lineTo(-19, 0);
+    var line = new THREE.Line(geometry, material);
+    line.rotation.set(-90 * Math.PI / 180, 0, 0);
+    line.position.set(0, 3, 0);
+    scene.add(line);
 
     // Piso
-    geometryPiso = new THREE.BoxGeometry(125, 4, 180);
+    geometryPiso = new THREE.BoxGeometry(170, 4, 300);
     var texturePiso = new THREE.TextureLoader().load("images/floor_texture.jpg");
     materialPiso = new THREE.MeshBasicMaterial({ map: texturePiso, side: THREE.DoubleSide });
     piso = new THREE.Mesh(geometryPiso, materialPiso);
     //PhMesh.receiveShadow = true;
-    piso.position.set(2.5, 0, 0);
+    piso.position.set(2.5, 0, -41);
     piso.name = "piso";
     scene.add(piso);
 
-    //Rebotes
+
+    //Rebotes circulares
     crearRebotes(7, 7, 6, 8, 15.5, 5.6, -42.5);//Ultimos tres son Pos en x,y,z
     crearRebotes(7, 7, 6, 8, -15.5, 5.6, -42.5);//Ultimos tres son Pos en x,y,z
     crearRebotes(7, 7, 6, 8, 0, 5.6, -65.5);//Ultimos tres son Pos en x,y,z
+    crearRebotes(7, 7, 6, 8, 52, 5.6, -125);//Ultimos tres son Pos en x,y,z
+    crearRebotes(7, 7, 0.5, 8, -53, 5.6, -120);//Ultimos tres son Pos en x,y,z
+
+    //Rebotes triangulares
+    crearRebotesTriangulares();
 
     /*
     var geometryTecho = new THREE.BoxGeometry(130, 4, 180);
@@ -173,7 +175,31 @@ function crearTablero() {
     lPad.position.set(lPadPos.x, lPadPos.y, lPadPos.z);
     scene.add(lPad);
 
+    //Linea al lado de la palanca izquierda
+    shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.lineTo(0, -30);
+    shape.lineTo(40, -52);
+    points = shape.getPoints();
+    geometry = new THREE.BufferGeometry().setFromPoints(points);
+    material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    line = new THREE.Line(geometry, material);
+    line.rotation.set(-90 * Math.PI / 180, 0, 0);
+    line.position.set(-55, 3, 20);
+    scene.add(line);
 
+    //Linea al lado de la palanca derecha
+    shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.lineTo(0, -30);
+    shape.lineTo(-40, -52);
+    points = shape.getPoints();
+    geometry = new THREE.BufferGeometry().setFromPoints(points);
+    material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    line = new THREE.Line(geometry, material);
+    line.rotation.set(-90 * Math.PI / 180, 0, 0);
+    line.position.set(55, 3, 20);
+    scene.add(line);
 
 }
 function crearPared(width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, colorPared, textura, nombre) {
@@ -199,20 +225,47 @@ function crearPelota(ObjetoPelota) {
     if (ObjetoPelota == undefined) {
         pelota.position.set(60, 5, 65); // Posicion de entrada
     } else {
-        // Multiball, aktueller Ball, wird an dessen Pos. verdoppelt
         pelota.position.copy(ObjetoPelota.position).add(new THREE.Vector3(3, 0, 3));
     }
-    //ball.castShadow = true;
     scene.add(pelota);
     pelotas.push(pelota);
     pelota = null;
 }
-function crearRebotes(radioS,radioI,height,segRad,posX,posY,posZ){
-    bumper = new THREE.CylinderGeometry(radioS,radioI,height,segRad); //RadioArriba,RadioAbajo,Altura,SegmentosRadiales
-    material = new THREE.MeshPhongMaterial({ color: 0x666666, specular: 0x999999, emissive: 0x000000, shininess: 10});
-    mesh = new THREE.Mesh( bumper, material );
-	mesh.position.set( posX, posY, posZ );
-	scene.add( mesh );
+function crearRebotes(radioS, radioI, height, segRad, posX, posY, posZ) {
+    bumper = new THREE.CylinderGeometry(radioS, radioI, height, segRad); //RadioArriba,RadioAbajo,Altura,SegmentosRadiales
+    material = new THREE.MeshPhongMaterial({ color: 0x666666, specular: 0x999999, emissive: 0x000000, shininess: 10 });
+    mesh = new THREE.Mesh(bumper, material);
+    mesh.position.set(posX, posY, posZ);
+    scene.add(mesh);
+}
+function crearRebotesTriangulares() {
+    var Shp = new THREE.Shape();
+    Shp.moveTo(-5, 1);
+    Shp.lineTo(10, 11);
+    Shp.bezierCurveTo(11, 11, 11, 11, 11, 10);
+    Shp.lineTo(11, -10);
+    Shp.bezierCurveTo(11, -11, 11, -11, 10, -11);
+    Shp.lineTo(-5, -1);
+    Shp.bezierCurveTo(-6, 0, -6, 0, -5, 1);
+    var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1   };
+    var geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
+    var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
+    mesh.position.set(44, 2, -30);
+    scene.add(mesh);
+
+    
+    Shp = new THREE.Shape();
+    Shp.moveTo(-4,0);
+    Shp.lineTo(4,25);
+    Shp.lineTo(5,-15);
+    Shp.lineTo(-4,0);
+    extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+    geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
+    mesh.position.set(-70, 2, -2);
+    scene.add(mesh);
 }
 function handleKeyDown(e) {
     console.log("Entro oprimo hacia abajo");
@@ -241,7 +294,17 @@ function handleKeyUp(e) {
 
     }
 }
-
+function actualizarPalancas(data) {
+    console.log("En tablero imprimo " + data);
+    if (data == "Ldown")
+        lPadUp = true;
+    if (data == "Lup")
+        lPadUp = false;
+    if (data == "Rdown")
+        rPadUp = true;
+    if (data == "Rup")
+        rPadUp = false;
+}
 
 render();
 

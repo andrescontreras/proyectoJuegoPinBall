@@ -2,6 +2,11 @@
 var socket = io.connect(null, { 'forceNew': true });
 socket.on('messages', function (data) {
     console.log(data);
+    if(data =='Ldown' || data =='Lhold' ||data =='Lup' ||
+    data =='Rdown' || data =='Rhold' || data =='Rup'){
+        var tablero = require('./tablero');
+        tablero.actualizarPalancas(data);
+    }
     render(data);
 });
 
