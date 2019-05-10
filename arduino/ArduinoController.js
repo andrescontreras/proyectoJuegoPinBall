@@ -10,7 +10,7 @@ module.exports = {
 function iniciar() {
     var io = require('./SocketController');
     var five = require("johnny-five"),
-        board, buttonL, buttonR, buttonStart;
+        board, buttonL, buttonR, buttonStart,slider;
     var SocketController = io.getIo();
 
     board = new five.Board();
@@ -23,6 +23,7 @@ function iniciar() {
         buttonL = new five.Button(2);
         buttonR = new five.Button(4);
         buttonStart = new five.Button(6);
+        slider = new five.Sensor("A0");
 
 
         // Inject the `button` hardware into
@@ -93,6 +94,10 @@ function iniciar() {
             console.log("Startup");
             SocketController.emit('messages', "Startup");
         });
+
+        slider.scale([0, 100]).on("slide", function() {
+            console.log("slide", this.value);
+          });
     });
 
     // aaaaas
