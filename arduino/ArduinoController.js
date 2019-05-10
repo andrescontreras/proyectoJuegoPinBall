@@ -10,7 +10,7 @@ module.exports = {
 function iniciar() {
     var io = require('./SocketController');
     var five = require("johnny-five"),
-        board, buttonL, buttonR;
+        board, buttonL, buttonR, buttonStart;
     var SocketController = io.getIo();
 
     board = new five.Board();
@@ -22,6 +22,8 @@ function iniciar() {
         // create a completely default instance
         buttonL = new five.Button(2);
         buttonR = new five.Button(4);
+        buttonStart = new five.Button(6);
+
 
         // Inject the `button` hardware into
         // the Repl instance's context;
@@ -31,6 +33,9 @@ function iniciar() {
         });
         board.repl.inject({
             button: buttonR
+        });
+        board.repl.inject({
+            button: buttonStart
         });
 
         // Button Event API
@@ -73,6 +78,20 @@ function iniciar() {
         buttonR.on("up", function () {
             console.log("Rup");
             SocketController.emit('messages', "Rup");
+        });
+
+
+        // "down" the button is pressed
+        buttonStart.on("down", function () {
+            console.log("Startdown");
+            SocketController.emit('messages', "Startdown");
+        });
+
+
+        // "up" the button is released
+        buttonStart.on("up", function () {
+            console.log("Startup");
+            SocketController.emit('messages', "Startup");
         });
     });
 
