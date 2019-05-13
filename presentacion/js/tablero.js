@@ -18,6 +18,7 @@ var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp =
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var vy = 0, vx = 0, gravity = 0.3;
 var bumper;
+var puntaje="0";
 
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
@@ -53,7 +54,7 @@ document.onkeyup = handleKeyUp;
 
 var render = function () {
     requestAnimationFrame(render);
-    /*
+    
     //Pongo la logica de las palancas aca
     if (lPadUp) {
         if (lPad.rotation.y <= 0.6764) {
@@ -74,7 +75,7 @@ var render = function () {
             rPad.rotation.y += 0.1;
         }
     }
-*/
+
 
 
     renderer.render(scene, camera);
@@ -247,19 +248,19 @@ function crearRebotesTriangulares() {
     Shp.bezierCurveTo(11, -11, 11, -11, 10, -11);
     Shp.lineTo(-5, -1);
     Shp.bezierCurveTo(-6, 0, -6, 0, -5, 1);
-    var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1   };
+    var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
     var geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
     var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
     mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     mesh.position.set(44, 2, -30);
     scene.add(mesh);
 
-    
+
     Shp = new THREE.Shape();
-    Shp.moveTo(-4,0);
-    Shp.lineTo(4,25);
-    Shp.lineTo(5,-15);
-    Shp.lineTo(-4,0);
+    Shp.moveTo(-4, 0);
+    Shp.lineTo(4, 25);
+    Shp.lineTo(5, -15);
+    Shp.lineTo(-4, 0);
     extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
     geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
     mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
@@ -268,10 +269,10 @@ function crearRebotesTriangulares() {
     scene.add(mesh);
 
     Shp = new THREE.Shape();
-    Shp.moveTo(0,0);
-    Shp.lineTo(0,-20);
-    Shp.lineTo(30,-35);
-    Shp.lineTo(0,0);
+    Shp.moveTo(0, 0);
+    Shp.lineTo(0, -20);
+    Shp.lineTo(30, -35);
+    Shp.lineTo(0, 0);
     extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
     geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
     mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
@@ -280,10 +281,10 @@ function crearRebotesTriangulares() {
     scene.add(mesh);
 
     Shp = new THREE.Shape();
-    Shp.moveTo(0,0);
-    Shp.lineTo(0,-20);
-    Shp.lineTo(-30,-35);
-    Shp.lineTo(0,0);
+    Shp.moveTo(0, 0);
+    Shp.lineTo(0, -20);
+    Shp.lineTo(-30, -35);
+    Shp.lineTo(0, 0);
     extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
     geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
     mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
