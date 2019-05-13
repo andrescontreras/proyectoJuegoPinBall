@@ -1,3 +1,5 @@
+
+/* eslint-disable no-undef */
 var scene = new THREE.Scene();
 var aspect = window.innerWidth / window.innerHeight;
 var camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
@@ -7,18 +9,16 @@ document.body.appendChild(renderer.domElement);
 //camera.position.z = 400;
 //camera.position.y = 70;
 camera.position.set(200, 90, 350);
-var controls = new THREE.OrbitControls(camera);
-controls.minDistance = 20;
-controls.maxDistance = 200;
-var geometry, material, mesh;
+//var controls = new THREE.OrbitControls(camera);
+//controls.minDistance = 20;
+//controls.maxDistance = 200;
+var material, mesh;
 var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
-var vy = 0, vx = 0, gravity = 0.3;
 var bumper;
-var puntaje="0";
 
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
@@ -54,12 +54,13 @@ document.onkeyup = handleKeyUp;
 
 var render = function () {
     requestAnimationFrame(render);
-    
+
     //Pongo la logica de las palancas aca
     if (lPadUp) {
+        console.log("lPaduUP RENDER");
         if (lPad.rotation.y <= 0.6764) {
             lPad.rotation.y += 0.1;
-            //console.log(lPad.rotation.y);
+            console.log(lPad.rotation.y);
         }
     } else {
         if (lPad.rotation.y >= -0.5236) {
@@ -67,6 +68,7 @@ var render = function () {
         }
     }
     if (rPadUp) {
+        console.log("rrrrPaduUP RENDER");
         if (rPad.rotation.y >= -0.6764) {
             rPad.rotation.y -= 0.1;
         }
@@ -81,7 +83,6 @@ var render = function () {
     renderer.render(scene, camera);
 };
 function crearTablero() {
-    var Mat = new THREE.MeshPhongMaterial({ color: 0xee9933, specular: 0x885533, emissive: 0x553311, shininess: 50 }); //, opacity: 0.67, transparent: true
 
     // Estructura del tablero
     var shape = new THREE.Shape();
@@ -293,7 +294,7 @@ function crearRebotesTriangulares() {
     scene.add(mesh);
 }
 function handleKeyDown(e) {
-    console.log("Entro oprimo hacia abajo");
+    //console.log("Entro oprimo hacia abajo");
     if (e.keyCode == 37) {
         console.log("Izquierdo");
         lPadUp = true;
@@ -307,7 +308,7 @@ function handleKeyDown(e) {
 }
 
 function handleKeyUp(e) {
-    console.log("Entro suelta el boton");
+    //console.log("Entro suelta el boton");
     if (e.keyCode == 37) {
         console.log("Suelta el boton Izquierdo");
         lPadUp = false;
@@ -319,17 +320,19 @@ function handleKeyUp(e) {
 
     }
 }
-function actualizarPalancas(data) {
-    console.log("En tablero imprimo " + data);
-    if (data == "Ldown")
+function actualizarPalancaIzquierda(data) {
+    console.log("En tablero, palanca izquierda, imprimo " + data);
+    if (data == "down")
         lPadUp = true;
-    if (data == "Lup")
+    if (data == "up")
         lPadUp = false;
-    if (data == "Rdown")
+}
+function actualizarPalancaDerecha(data) {
+    console.log("En tablero, palanca derecha, imprimo " + data);
+    if (data == "down")
         rPadUp = true;
-    if (data == "Rup")
+    if (data == "up")
         rPadUp = false;
 }
-
 render();
 

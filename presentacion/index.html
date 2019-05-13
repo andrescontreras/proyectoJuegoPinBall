@@ -6,19 +6,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Socket</title>
-  
-    <link href="./css/styles.css" rel="stylesheet" type="text/css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/socket.js"></script>
-    
+
+  <link href="./css/styles.css" rel="stylesheet" type="text/css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/socket.js"></script>
+
 
 </head>
 
 <body>
+  <div id=tablaPuntaje>
+    <table>
+      <tbody>
+        <tr id=rowPuntaje>
+          <td>Puntaje: </td>
+          <td id=puntaje style="text-align:center">0</td>
+        </tr>
+        <tr>
+          <td>Pelotas</td>
+          <td id=pelotas>3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <p id=texto>Texot</p>
+  </div>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js "></script>-->
+
   <script src="./js/three.js"></script>
   <script src="./js/OrbitControls.js"></script>
   <script src="./js/tablero.js"></script>
+
 
 
   <h1>Socket</h1>

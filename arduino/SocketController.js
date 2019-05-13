@@ -17,7 +17,19 @@ io.on('connection', function (socket) {
 
   socket.on('new-message', function (data) {
     console.log("aaa", data);
-    io.emit('messages', "Ldown");
+    console.log("Esto es data de author" + data.author);
+    if (data.author == "a") {
+      io.emit('Left', "up");
+    } else if (data.author == "d") {
+      io.emit('Right', "up");
+    } else if (data.author == "q") {
+      io.emit('Left', "down");
+    } else if (data.author == "e") {
+      io.emit('Right', "down");
+    } else {
+      io.emit('messages', "Otra cosa");
+    }
+
 
   });
 
@@ -29,8 +41,8 @@ server.listen(port, function () {
 
 module.exports = {
   getIo: function () {
-      console.log("inicio");
-      return io;
+    console.log("inicio");
+    return io;
   }
 }
 
