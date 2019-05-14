@@ -12,12 +12,12 @@ socket.on('Right', function (data) {
 });
 socket.on('Start', function (data) {
     console.log(data);
-    //actualizarPalancas(data);
+    empujarResorte();
     render(data);
 });
 socket.on('Disparo', function (data) {
     console.log(data);
-    //actualizarPalancas(data);
+    dispararPelota(data);
     render(data);
 });
 function render(data) {

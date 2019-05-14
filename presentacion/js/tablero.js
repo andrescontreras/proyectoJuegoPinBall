@@ -8,10 +8,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 //camera.position.z = 400;
 //camera.position.y = 70;
-camera.position.set(200, 90, 350);
+camera.position.set(0, 100, 300);
 //var controls = new THREE.OrbitControls(camera);
 //controls.minDistance = 20;
-//controls.maxDistance = 200;
+//controls.maxDistance = 250;
 var material, mesh;
 var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
@@ -19,34 +19,20 @@ geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var bumper;
+var resorte, resorteAbajo = false;
 
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
 
 crearTablero();
+crearResorte();
 crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
 crearPared(300, 15, 85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
 crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
 crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
 //crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
 crearPelota();
-
-//En la funcion de socket, llamar una funcion de aca que actualice el lPadUp y rPadUp
-
-/* Debe ir en socket.js
-var socket = io.connect(null, { 'forceNew': true });
-socket.on('messages', function (data) {
-    console.log("En tablero imprimo "+data);
-    if(data == "Ldown")
-        lPadUp=true;
-    if(data == "Lup")
-        lPadUp=false;
-    if(data == "Rdown")
-        rPadUp=true;
-    if(data =="Rup")
-        rPadUp=false;
-});*/
 document.onkeydown = handleKeyDown;
 document.onkeyup = handleKeyUp;
 
@@ -75,6 +61,17 @@ var render = function () {
     } else {
         if (rPad.rotation.y <= 0.5236) {
             rPad.rotation.y += 0.1;
+        }
+    }
+    //Pongo la lógica del resorte acá
+    if (resorteAbajo) {
+        if (resorte.position.z <= 90) {//Para que no baje despues de cierto limite
+            resorte.position.z += 0.1;
+        }
+    }
+    else {
+        if (resorte.position.z >= 77) {
+            resorte.position.z -= 1.2;
         }
     }
 
@@ -222,6 +219,14 @@ function crearPared(width, height, positionX, positionY, positionZ, rotationX, r
 
     scene.add(plane);
 }
+function crearResorte() {
+    var geometry = new THREE.BoxGeometry(3, 18, 5);
+    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    resorte = new THREE.Mesh(geometry, material);
+    resorte.position.set(60, 5, 77);
+    resorte.rotation.set(-90 * Math.PI / 180, 0, 0);
+    scene.add(resorte);
+}
 function crearPelota(ObjetoPelota) {
     var pelota = new THREE.Mesh(geometryPelota, materialPelota);
     if (ObjetoPelota == undefined) {
@@ -305,6 +310,12 @@ function handleKeyDown(e) {
         rPadUp = true;
         console.log(rPad.position.y);
     }
+    if (e.keyCode == 40) {
+        console.log("Fecha abajo");
+        resorteAbajo = true;
+
+
+    }
 }
 
 function handleKeyUp(e) {
@@ -317,8 +328,12 @@ function handleKeyUp(e) {
     if (e.keyCode == 39) {
         console.log("Suelta el boton Derecho");
         rPadUp = false;
-
     }
+    if (e.keyCode == 40) {
+        console.log("Suelta el boton Flecha Abajo");
+        resorteAbajo = false;
+    }
+
 }
 function actualizarPalancaIzquierda(data) {
     console.log("En tablero, palanca izquierda, imprimo " + data);
@@ -333,6 +348,14 @@ function actualizarPalancaDerecha(data) {
         rPadUp = true;
     if (data == "up")
         rPadUp = false;
+}
+function empujarResorte() {
+    resorteAbajo = true;
+}
+function dispararPelota(data) {
+    //Aca me llegaria la potencia con la que deberia dispararse la pelota
+    resorteAbajo = false;
+    //Logica de disparo
 }
 render();
 

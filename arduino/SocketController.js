@@ -26,7 +26,12 @@ io.on('connection', function (socket) {
       io.emit('Left', "down");
     } else if (data.author == "e") {
       io.emit('Right', "down");
-    } else {
+    } else if(data.author =="z"){
+      io.emit('Start', "");
+    }else if(data.author == "x"){
+      io.emit('Disparo', 100);
+    }
+    else {
       io.emit('messages', "Otra cosa");
     }
 
