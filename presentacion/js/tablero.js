@@ -9,20 +9,24 @@ document.body.appendChild(renderer.domElement);
 //camera.position.z = 400;
 //camera.position.y = 70;
 //camera.rotation.set(Math.Pi,  2, 0);
-var controls = new THREE.OrbitControls(camera);
-controls.minDistance = 20;
-controls.maxDistance = 1000;
+//var controls = new THREE.OrbitControls(camera);
+//controls.minDistance = 20;
+//controls.maxDistance = 1000;
 camera.rotation.order = 'YXZ';
-camera.position.set(0, 100, 200);
-//camera.rotation.y = Math.PI/2;
+camera.position.set(0, 100, 180);
+camera.rotation.x=5.6;
+//console.log("Posicion camara X " +camera.rotation.x);
+//console.log("Posicion camara Y " +camera.rotation.y);
+//console.log("Posicion camara Z " +camera.rotation.z);
 
 var material, mesh;
-var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
+var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, indicePelotas=0; GameOver = false;
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var bumper;
+var paredes = [];
 var resorte, resorteAbajo = false;
 var puntaje = 0;
 var light = new THREE.DirectionalLight(0xffffff);
@@ -45,7 +49,7 @@ iniciarSonido("soundDisparoBola");
 
 var render = function () {
     requestAnimationFrame(render);
-
+    //puntaje+=0.01;
     //Pongo la logica de las palancas aca
     if (lPadUp) {
         console.log("lPaduUP RENDER");
@@ -82,7 +86,22 @@ var render = function () {
             resorte.position.z -= 1.2;
         }
     }
-    //Verificar cuando una pelota pierde
+    //Verificar cuando una pelota pierde segun la posicion de esta en z
+    
+    
+    if(pelotas[indicePelotas].position.z>108){ //Verificar esa posicion 200
+        totalPelotas-=1;
+        scene.remove(pelotas[indicePelotas]);
+        if(totalPelotas>0){
+            indicePelotas+=1;
+            crearPelota();
+        }else{
+            GameOver=true;
+        }
+        
+        
+    }
+    
 
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
@@ -90,39 +109,39 @@ var render = function () {
 function crearTablero() {
 
     // Estructura del tablero
-    crearPared(30, 10, -55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda al lado del rebote triangular izquierdo cerca a la palanca
-    crearPared(30, 10, 55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared derecha al lado del rebote triangular derecho cerca a la palanca
+    crearPared(30, 10, -55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzqRebIzq");//Pared izquierda al lado del rebote triangular izquierdo cerca a la palanca
+    crearPared(30, 10, 55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDerRebDer");//Pared derecha al lado del rebote triangular derecho cerca a la palanca
 
-    crearPared(40, 10, 38, 0, 59, 0, Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal derecho al lado de la palanca derecha
-    crearPared(40, 10, -38, 0, 59, 0, 5 * Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal izquierda al lado de la palanca izquierda
+    crearPared(40, 10, 38, 0, 59, 0, Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagPalDer");//Pared diagonal derecho al lado de la palanca derecha
+    crearPared(40, 10, -38, 0, 59, 0, 5 * Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagPalIzq");//Pared diagonal izquierda al lado de la palanca izquierda
 
-    crearPared(58, 10, -40, 0, 76, 0, 2.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal izquierda debajo de la palanca izquierda
-    crearPared(50, 10, 36, 0, 76, 0, 0.58, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal derecha debajo de la palanca derecha
+    crearPared(58, 10, -40, 0, 76, 0, 2.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagAbajoPalIzq");//Pared diagonal izquierda debajo de la palanca izquierda
+    crearPared(50, 10, 36, 0, 76, 0, 0.58, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagAbajoPalDer");//Pared diagonal derecha debajo de la palanca derecha
 
-    crearPared(38, 10, 57, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda pelota
-    crearPared(38, 10, 63, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared derecha pelota
-    crearPared(6, 10, 60, 0, 100, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Piso pelota
+    crearPared(38, 10, 57, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzqPelota");//Pared izquierda pelota
+    crearPared(38, 10, 63, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDerPelota");//Pared derecha pelota
+    crearPared(6, 10, 60, 0, 100, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "pisoPelota");//Piso pelota
 
-    crearPared(147, 10, 63, 0, -10, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Primer pared larga derecha
+    crearPared(147, 10, 63, 0, -10, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredLargaDerecha");//Pared larga derecha
 
-    crearPared(43, 10, -65, 0, 41, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared 1 más izquierda de abajo a arriba
-    crearPared(25, 10, -73, 0, 10, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 de triangulo izquierdo
-    crearPared(50, 10, -73, 0, -23, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 de triangulo izquierdo
-    crearPared(40, 10, -72, 0, -65, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 arriba de triangulo izquierdo
-    crearPared(25, 10, -80, 0, -95, 0, 1.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 arriba de triangulo izquierdo
+    crearPared(43, 10, -65, 0, 41, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "pared1Izq");//Pared 1 más izquierda de abajo a arriba
+    crearPared(25, 10, -73, 0, 10, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag1TriangIzq");//Pared diagonal 1 de triangulo izquierdo
+    crearPared(50, 10, -73, 0, -23, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag2TriangIzq");//Pared diagonal 2 de triangulo izquierdo
+    crearPared(40, 10, -72, 0, -65, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag3TriangIzq");//Pared diagonal 3 arriba de triangulo izquierdo
+    crearPared(25, 10, -80, 0, -95, 0, 1.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag4TriangIzq");//Pared diagonal 4 arriba de triangulo izquierdo
 
-    crearPared(45, 10, -74, 0, -127, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 circulo de arriba a la izquierda
-    crearPared(30, 10, -52, 0, -149, 0, 0.1, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 circulo de arriba a la izquierda
-    crearPared(50, 10, -24, 0, -129.5, 0, 2.14, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 circulo de arriba a la izquierda
-    crearPared(26, 10, -16, 0, -97, 0, 1.15, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 circulo de arriba a la izquierda
+    crearPared(45, 10, -74, 0, -127, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag1CircIzq");//Pared diagonal 1 circulo de arriba a la izquierda
+    crearPared(30, 10, -52, 0, -149, 0, 0.1, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag2CircIzq");//Pared diagonal 2 circulo de arriba a la izquierda
+    crearPared(50, 10, -24, 0, -129.5, 0, 2.14, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag3CircIzq");//Pared diagonal 3 circulo de arriba a la izquierda
+    crearPared(26, 10, -16, 0, -97, 0, 1.15, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag4CircIzq");//Pared diagonal 4 circulo de arriba a la izquierda
 
-    crearPared(61, 10, 9, 0, -85, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared de la mitad más arriba
+    crearPared(61, 10, 9, 0, -85, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredMitadArriba");//Pared de la mitad más arriba
 
-    crearPared(45, 10, 32, 0, -105.5, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 circulo de arriba a la derecha
-    crearPared(45, 10, 31, 0, -147, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 circulo de arriba a la derecha
-    crearPared(25, 10, 50, 0, -168, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 circulo de arriba a la derecha
-    crearPared(45, 10, 70, 0, -147, 0, 1.95, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 circulo de arriba a la derecha
-    crearPared(45.5, 10, 70, 0, -105.5, 0, 1.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 5 circulo de arriba a la derecha
+    crearPared(45, 10, 32, 0, -105.5, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag1CircDer");//Pared diagonal 1 circulo de arriba a la derecha
+    crearPared(45, 10, 31, 0, -147, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag2CircDer");//Pared diagonal 2 circulo de arriba a la derecha
+    crearPared(25, 10, 50, 0, -168, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag3CircDer");//Pared diagonal 3 circulo de arriba a la derecha
+    crearPared(45, 10, 70, 0, -147, 0, 1.95, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag4CircDer");//Pared diagonal 4 circulo de arriba a la derecha
+    crearPared(45.5, 10, 70, 0, -105.5, 0, 1.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal 5 circulo de arriba a la derecha
 
     // Piso
     geometryPiso = new THREE.BoxGeometry(170, 4, 300);
@@ -199,7 +218,7 @@ function crearPared(width, height, positionX, positionY, positionZ, rotationX, r
     if (rotationZ != 0) { plane.rotation.z = rotationZ; }
 
     plane.name = nombre;
-
+    paredes.push(plane);
     scene.add(plane);
 }
 function crearResorte() {
@@ -333,7 +352,16 @@ function actualizarPalancaDerecha(data) {
         rPadUp = false;
 }
 function empujarResorte() {
-    resorteAbajo = true;
+    if(GameOver==true){//Cuando se haya perdido el juego y se quiera volver a jugar
+        pelotas=[];
+        pelotas=3;
+        indicePelotas=0;
+        crearPelota();
+        GameOver=false;
+    }else{
+        resorteAbajo = true;
+    }
+    
 }
 function dispararPelota(data) {
     //Aca me llegaria la potencia con la que deberia dispararse la pelota
