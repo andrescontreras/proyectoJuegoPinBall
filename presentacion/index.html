@@ -15,30 +15,21 @@
 </head>
 
 <body>
-  <div id=tablaPuntaje>
-    <table>
-      <tbody>
-        <tr id=rowPuntaje>
-          <td>Puntaje: </td>
-          <td id=puntaje style="text-align:center">0</td>
-        </tr>
-        <tr>
-          <td>Pelotas</td>
-          <td id=pelotas>3</td>
-        </tr>
-      </tbody>
-    </table>
+  <div id=divScore>
+      <p id=pelotas>Pelotas: 3</p>
+    <p id=puntaje>Puntaje: 0</p>
   </div>
-  <div>
-    <p id=texto>Texot</p>
-  </div>
+  <div style="display: none;">
+		<audio id="soundDisparoBola" preload="auto">
+			<source src="sounds/sonido_inicio.wav" type="audio/wav" ></source>
+		</audio> 
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js "></script>-->
 
   <script src="./js/three.js"></script>
   <script src="./js/build/cannon.js"></script>
     <script src="./js/build/cannon.demo.js"></script>
     <script src="../libs/dat.gui.js"></script>
-    <script src="./js/libs/Three.js"></script>
+    <!--<script src="./js/libs/Three.js"></script>-->
     <script src="./js/libs/TrackballControls.js"></script>
     <script src="./js/libs/Detector.js"></script>
     <script src="./js/libs/Stats.js"></script>
@@ -46,8 +37,8 @@
   <script src="./js/OrbitControls.js"></script>
   <script src="./js/tablero.js"></script>
 
-
-
+  
+<!--
   <h1>Socket</h1>
   <ul id="messages"></ul>
   <br />
@@ -56,7 +47,7 @@
     <input type="text" name="" id="texto" placeholder="texto" />
     <input type="submit" value="Enviar" />
   </form>
-
+-->
 
 </body>
 

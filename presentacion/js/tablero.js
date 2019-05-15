@@ -8,10 +8,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 //camera.position.z = 400;
 //camera.position.y = 70;
-camera.position.set(0, 100, 300);
-//var controls = new THREE.OrbitControls(camera);
-//controls.minDistance = 20;
-//controls.maxDistance = 250;
+//camera.rotation.set(Math.Pi,  2, 0);
+var controls = new THREE.OrbitControls(camera);
+controls.minDistance = 20;
+controls.maxDistance = 1000;
+camera.rotation.order = 'YXZ';
+camera.position.set(0, 100, 200);
+//camera.rotation.y = Math.PI/2;
+
 var material, mesh;
 var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, GameOver = false, turningFlips = [];
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
@@ -20,7 +24,7 @@ var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp =
     rPadRot = new THREE.Vector3(0, 0.5236, 0), lPadRot = new THREE.Vector3(0, -0.5236, 0);//+-30 * Math.PI/180
 var bumper;
 var resorte, resorteAbajo = false;
-
+var puntaje = 0;
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
@@ -31,12 +35,13 @@ crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/imag
 crearPared(300, 15, 85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
 crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
 crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
-//crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
+crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
+
 crearPelota();
 document.onkeydown = handleKeyDown;
 document.onkeyup = handleKeyUp;
 
-
+iniciarSonido("soundDisparoBola");
 
 var render = function () {
     requestAnimationFrame(render);
@@ -46,6 +51,8 @@ var render = function () {
         console.log("lPaduUP RENDER");
         if (lPad.rotation.y <= 0.6764) {
             lPad.rotation.y += 0.1;
+
+            puntaje += 1;
             console.log(lPad.rotation.y);
         }
     } else {
@@ -57,6 +64,7 @@ var render = function () {
         console.log("rrrrPaduUP RENDER");
         if (rPad.rotation.y >= -0.6764) {
             rPad.rotation.y -= 0.1;
+            puntaje -= 1;
         }
     } else {
         if (rPad.rotation.y <= 0.5236) {
@@ -74,48 +82,47 @@ var render = function () {
             resorte.position.z -= 1.2;
         }
     }
+    //Verificar cuando una pelota pierde
 
-
-
+    document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
 };
 function crearTablero() {
 
     // Estructura del tablero
-    var shape = new THREE.Shape();
-    shape.moveTo(15, -90);
-    shape.lineTo(57, -62.75);
-    shape.lineTo(57, -90);
-    shape.lineTo(63, -85);
-    shape.lineTo(63, 85);
-    shape.bezierCurveTo(105, //Punto 2 X
-        180,//Punto 2 Y
-        -3, //Punto 1 X
-        180, //Punto 1 Y
-        40, //CurrentPoint X
-        85); // CurrentPoint Y
-    shape.lineTo(-48, 85);
-    shape.bezierCurveTo(15, //Punto 2 X
-        180,//Punto 2 Y
-        -93, //Punto 1 X
-        180, //Punto 1 Y
-        -80, //CurrentPoint X
-        85); // CurrentPoint Y
-    shape.lineTo(-65, 47.5);
-    shape.lineTo(-80, 0);
-    shape.lineTo(-65, -20);
-    shape.lineTo(-65, -62.75);
-    shape.lineTo(-15, -90);
+    crearPared(30, 10, -55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda al lado del rebote triangular izquierdo cerca a la palanca
+    crearPared(30, 10, 55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared derecha al lado del rebote triangular derecho cerca a la palanca
 
-    var points = shape.getPoints();
+    crearPared(40, 10, 38, 0, 59, 0, Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal derecho al lado de la palanca derecha
+    crearPared(40, 10, -38, 0, 59, 0, 5 * Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal izquierda al lado de la palanca izquierda
 
-    var geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var material = new THREE.LineBasicMaterial({ color: 0xffffff });
+    crearPared(58, 10, -40, 0, 76, 0, 2.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal izquierda debajo de la palanca izquierda
+    crearPared(50, 10, 36, 0, 76, 0, 0.58, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal derecha debajo de la palanca derecha
 
-    var line = new THREE.Line(geometry, material);
-    line.rotation.set(-90 * Math.PI / 180, 0, 0);
-    line.position.set(0, 3, 0);
-    scene.add(line);
+    crearPared(38, 10, 57, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda pelota
+    crearPared(38, 10, 63, 0, 81, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared derecha pelota
+    crearPared(6, 10, 60, 0, 100, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Piso pelota
+
+    crearPared(147, 10, 63, 0, -10, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Primer pared larga derecha
+
+    crearPared(43, 10, -65, 0, 41, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared 1 más izquierda de abajo a arriba
+    crearPared(25, 10, -73, 0, 10, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 de triangulo izquierdo
+    crearPared(50, 10, -73, 0, -23, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 de triangulo izquierdo
+    crearPared(40, 10, -72, 0, -65, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 arriba de triangulo izquierdo
+    crearPared(25, 10, -80, 0, -95, 0, 1.64, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 arriba de triangulo izquierdo
+
+    crearPared(45, 10, -74, 0, -127, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 circulo de arriba a la izquierda
+    crearPared(30, 10, -52, 0, -149, 0, 0.1, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 circulo de arriba a la izquierda
+    crearPared(50, 10, -24, 0, -129.5, 0, 2.14, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 circulo de arriba a la izquierda
+    crearPared(26, 10, -16, 0, -97, 0, 1.15, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 circulo de arriba a la izquierda
+
+    crearPared(61, 10, 9, 0, -85, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared de la mitad más arriba
+
+    crearPared(45, 10, 32, 0, -105.5, 0, 1.94, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 1 circulo de arriba a la derecha
+    crearPared(45, 10, 31, 0, -147, 0, 1.25, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 2 circulo de arriba a la derecha
+    crearPared(25, 10, 50, 0, -168, 0, 0, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 3 circulo de arriba a la derecha
+    crearPared(45, 10, 70, 0, -147, 0, 1.95, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 4 circulo de arriba a la derecha
+    crearPared(45.5, 10, 70, 0, -105.5, 0, 1.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared diagonal 5 circulo de arriba a la derecha
 
     // Piso
     geometryPiso = new THREE.BoxGeometry(170, 4, 300);
@@ -356,6 +363,13 @@ function dispararPelota(data) {
     //Aca me llegaria la potencia con la que deberia dispararse la pelota
     resorteAbajo = false;
     //Logica de disparo
+}
+function iniciarSonido(sonido) {
+    if (document.getElementById(sonido).currentTime) {
+        document.getElementById(sonido).currentTime = 0;
+    }
+    document.getElementById(sonido).volume = 0.5;
+    document.getElementById(sonido).play();
 }
 render();
 
