@@ -181,31 +181,7 @@ function crearTablero() {
     lPad.position.set(lPadPos.x, lPadPos.y, lPadPos.z);
     scene.add(lPad);
 
-    //Linea al lado de la palanca izquierda
-    shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.lineTo(0, -30);
-    shape.lineTo(40, -52);
-    points = shape.getPoints();
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    material = new THREE.LineBasicMaterial({ color: 0xffffff });
-    line = new THREE.Line(geometry, material);
-    line.rotation.set(-90 * Math.PI / 180, 0, 0);
-    line.position.set(-55, 3, 20);
-    scene.add(line);
-
-    //Linea al lado de la palanca derecha
-    shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.lineTo(0, -30);
-    shape.lineTo(-40, -52);
-    points = shape.getPoints();
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    material = new THREE.LineBasicMaterial({ color: 0xffffff });
-    line = new THREE.Line(geometry, material);
-    line.rotation.set(-90 * Math.PI / 180, 0, 0);
-    line.position.set(55, 3, 20);
-    scene.add(line);
+    
 
 }
 function crearPared(width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, colorPared, textura, nombre) {
