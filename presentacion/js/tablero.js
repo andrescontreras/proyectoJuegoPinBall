@@ -9,9 +9,9 @@ document.body.appendChild(renderer.domElement);
 //camera.position.z = 400;
 //camera.position.y = 70;
 //camera.rotation.set(Math.Pi,  2, 0);
-//var controls = new THREE.OrbitControls(camera);
-//controls.minDistance = 20;
-//controls.maxDistance = 1000;
+var controls = new THREE.OrbitControls(camera);
+controls.minDistance = 20;
+controls.maxDistance = 1000;
 camera.rotation.order = 'YXZ';
 camera.position.set(0, 100, 180);
 camera.rotation.x = 5.6;
@@ -37,16 +37,16 @@ scene.add(light);
 //1) Crear un mundo
 var world = new CANNON.World();
 //por defecto la gravedad esta en el eje z
-world.gravity.set(0, 0, 10);
-//world.broadphase = new CANNON.NaiveBroadphase();
+world.gravity.set(0, 0, 20);
+world.broadphase = new CANNON.NaiveBroadphase();
 crearPelota();
 crearTablero();
 crearResorte();
-crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
-crearPared(300, 15, 85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
-crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
-crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
-crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
+//crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
+//crearPared(300, 15, 85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredDerecha");//Pared derecha
+//crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAdelante");//Pared adelante
+//crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
+//crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
 
 
 document.onkeydown = handleKeyDown;
@@ -54,12 +54,14 @@ document.onkeyup = handleKeyUp;
 
 iniciarSonido("soundDisparoBola");
 var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
-var dt = 1 / 60;
+var dt = 1 / 70 ;
 
 var render = function () {
     requestAnimationFrame(render);
     world.step(dt);
+    sphereBodyPelotas[indiceShereBody].position.y=5;
     pelotas[indicePelotas].position.copy(sphereBodyPelotas[indiceShereBody].position);
+    
     cannonDebugRenderer.update();
     //puntaje+=0.01;
     //Pongo la logica de las palancas aca
@@ -96,7 +98,7 @@ var render = function () {
     }
     else {
         if (resorte.position.z >= 77) {
-            resorte.position.z -= 1.2;
+            resorte.position.z -= 1.5;
             groundBody.position.copy(resorte.position);
         }
     }
@@ -159,6 +161,12 @@ function crearTablero() {
     crearPared(45, 10, 70, 0, -147, 0, 1.95, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag4CircDer");//Pared diagonal 4 circulo de arriba a la derecha
     crearPared(45.5, 10, 70, 0, -105.5, 0, 1.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal 5 circulo de arriba a la derecha
 
+    crearRebote(45, 10, 30, 0, 40, 0, 0.84, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal del rebote triangular derecho
+    crearRebote(20, 10, 46, 0, 33, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular derecho
+
+    crearRebote(48, 10, -29, 0, 42, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal del rebote triangular izquierda
+    crearRebote(20, 10, -46, 0, 33, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular izquierda
+    
     // Piso
     geometryPiso = new THREE.BoxGeometry(170, 4, 300);
     var texturePiso = new THREE.TextureLoader().load("images/floor_texture.jpg");
@@ -168,6 +176,32 @@ function crearTablero() {
     piso.position.set(2.5, 0, -41);
     piso.name = "piso";
     scene.add(piso);
+
+    var pisoBody;
+    var pisoMaterial = new CANNON.Material();
+    var pisoShape = new CANNON.Box(new CANNON.Vec3(170/2, 4/2, 300/2));
+    //groundShape.rotation.copy(plane.rotation);
+    pisoBody = new CANNON.Body({ mass: 0, shape: pisoShape, material: pisoMaterial });
+    pisoBody.position.copy(piso.position);
+
+    world.add(pisoBody);
+
+    var mat1_piso = new CANNON.ContactMaterial(pisoMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
+    world.addContactMaterial(mat1_piso);
+
+    var vidrioBody;
+    var vidrioMaterial = new CANNON.Material();
+    var vidrioShape = new CANNON.Box(new CANNON.Vec3(170/2, 1/2, 300/2));
+    //groundShape.rotation.copy(plane.rotation);
+    vidrioBody = new CANNON.Body({ mass: 0, shape: vidrioShape, material: vidrioMaterial });
+    vidrioBody.position.copy(piso.position);
+
+    world.add(vidrioBody);
+
+    var mat1_vidrio = new CANNON.ContactMaterial(vidrioMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
+    
+    vidrioBody.position.y+=10;
+    world.addContactMaterial(mat1_vidrio);
 
 
     //Rebotes circulares
@@ -235,40 +269,63 @@ function crearPared(width, height, positionX, positionY, positionZ, rotationX, r
 
     plane.name = nombre;
     paredes.push(plane);
-    crearFisicaPared(plane, width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ);
+    crearFisicaPared(plane, width, height, rotationX, rotationY, rotationZ);
     scene.add(plane);
 }
-function crearFisicaPared(plane, width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ) {
+function crearFisicaPared(plane, width, height, rotationX, rotationY, rotationZ) {
     //se crea una superficie con la que la esfera va a tener contacto
     var wallBody;
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, 0.1 / 2));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height+5 , 0.5));
     //groundShape.rotation.copy(plane.rotation);
     wallBody = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial });
-    var rot = new CANNON.Vec3(rotationX, rotationY, rotationZ)
     wallBody.position.copy(plane.position);
     wallBody.quaternion.setFromEuler(rotationX, rotationY, rotationZ, 'XYZ');
-    //wallBody.quaternion.set(rotationX* Math.PI / 180,rotationY* Math.PI / 180,rotationZ* Math.PI / 180);
-    //wallBody.quaternion.copy(plane.quaternion);
-
-    //console.log("posicion cannon:",wallBody.position);
-
-    console.log("plane.rotation:", plane.rotation);
-    console.log("wallBody.quaternion:", wallBody.quaternion);
-    console.log("plane.quaternion:", plane.quaternion);
-
-    //se crea un tipo de contacto entre la esfera y la superficie.
-
-
     world.add(wallBody);
 
-    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
+    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.5, restitution: 0.0 });
     world.addContactMaterial(mat1_wall);
 
 
 }
+
+function crearRebote(width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, colorPared, textura, nombre) {
+    var geometry = new THREE.PlaneGeometry(width, height);
+    var texture = new THREE.TextureLoader().load(textura);
+    var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+    var plane = new THREE.Mesh(geometry, material);
+    if (positionX != 0) { plane.position.x = positionX; }
+    if (positionY != 0) { plane.position.y = positionY; }
+    if (positionZ != 0) { plane.position.z = positionZ; }
+
+    if (rotationX != 0) { plane.rotation.x = rotationX; }
+    if (rotationY != 0) { plane.rotation.y = rotationY; }
+    if (rotationZ != 0) { plane.rotation.z = rotationZ; }
+
+    plane.name = nombre;
+    paredes.push(plane);
+    crearFisicaRebote(plane, width, height, rotationX, rotationY, rotationZ);
+    scene.add(plane);
+}
+function crearFisicaRebote(plane, width, height, rotationX, rotationY, rotationZ) {
+    //se crea una superficie con la que la esfera va a tener contacto
+    var wallBody;
+    var wallMaterial = new CANNON.Material();
+    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height+5 , 0.5));
+    //groundShape.rotation.copy(plane.rotation);
+    wallBody = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial });
+    wallBody.position.copy(plane.position);
+    wallBody.quaternion.setFromEuler(rotationX, rotationY, rotationZ, 'XYZ');
+    world.add(wallBody);
+
+    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 2 });
+    world.addContactMaterial(mat1_wall);
+
+
+}
+
 function crearResorte() {
-    var geometry = new THREE.BoxGeometry(3, 18, 5);
+    var geometry = new THREE.BoxGeometry(6, 18, 8);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     resorte = new THREE.Mesh(geometry, material);
     resorte.position.set(60, 5, 77);
@@ -293,7 +350,8 @@ function crearFisicaResorte() {
 function crearPelota(ObjetoPelota) {
     var pelota = new THREE.Mesh(geometryPelota, materialPelota);
     if (ObjetoPelota == undefined) {
-        pelota.position.set(60, 5, 65); // Posicion de entrada
+       // pelota.position.set(60, 5, 60); // Posicion de entrada
+       pelota.position.set(20, 5, 10); // Posicion de entrada
     } else {
         pelota.position.copy(ObjetoPelota.position).add(new THREE.Vector3(3, 0, 3));
     }
@@ -305,12 +363,12 @@ function crearPelota(ObjetoPelota) {
 function crearFisicaPelota() {
     var matPel = new CANNON.Material();
     matPelotas.push(matPel);
-    var mass = 10, radius = 1;
+    var mass = 2, radius = 1;
     var sphereShape = new CANNON.Sphere(radius); // Step 1
-    console.log();
     var sphBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matPelotas[indiceMatPelota] }); // Step 2
     sphereBodyPelotas.push(sphBdy);
-    sphereBodyPelotas[indiceShereBody].position.set(60, 5, 65);
+    //sphereBodyPelotas[indiceShereBody].position.set(60, 5, 65);
+    sphereBodyPelotas[indiceShereBody].position.set(25, 5, -15);
     world.add(sphereBodyPelotas[indiceShereBody]); // Step 3
 
 }
@@ -320,6 +378,20 @@ function crearRebotes(radioS, radioI, height, segRad, posX, posY, posZ) {
     mesh = new THREE.Mesh(bumper, material);
     mesh.position.set(posX, posY, posZ);
     scene.add(mesh);
+    crearFisicaRebotes(radioS,mesh);
+}
+function crearFisicaRebotes(radio,rebote){
+    var matRebote = new CANNON.Material();
+    var mass = 0;
+    console.log("Rebote posicion X "+rebote.position.x);
+    console.log("Rebote posicion Y "+rebote.position.y);
+    console.log("Rebote posicion Z "+rebote.position.z);
+    var sphereShape = new CANNON.Sphere(radio+3); // Step 1
+    var reboteBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matRebote}); // Step 2
+    reboteBdy.position.copy(rebote.position);
+    world.add(reboteBdy); // Step 3
+    var mat1_ground = new CANNON.ContactMaterial(matRebote, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 2.0 }); //Restitution hace que rebote
+    world.addContactMaterial(mat1_ground);
 }
 function crearRebotesTriangulares() {
     var Shp = new THREE.Shape();
@@ -336,6 +408,9 @@ function crearRebotesTriangulares() {
     mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     mesh.position.set(44, 2, -30);
     scene.add(mesh);
+
+
+
 
 
     Shp = new THREE.Shape();
