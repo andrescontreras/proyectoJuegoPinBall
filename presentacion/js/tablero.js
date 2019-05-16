@@ -20,7 +20,7 @@ camera.rotation.x = 5.6;
 //console.log("Posicion camara Z " +camera.rotation.z);
 
 var material, mesh;
-var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, indicePelotas = 0; GameOver = false;
+var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelota, totalPelotas = 3; GameOver = false;
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
@@ -29,7 +29,7 @@ var bumper;
 var paredes = [];
 var resorte, resorteAbajo = false;
 var puntaje = 0;
-var matPelotas = [], indiceMatPelota = 0, sphereBodyPelotas = [], indiceShereBody = 0;
+var matPelota, sphereBodyPelota;
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
@@ -37,7 +37,7 @@ scene.add(light);
 //1) Crear un mundo
 var world = new CANNON.World();
 //por defecto la gravedad esta en el eje z
-world.gravity.set(0, 0, 20);
+world.gravity.set(0, 0, 60);
 world.broadphase = new CANNON.NaiveBroadphase();
 crearPelota();
 crearTablero();
@@ -54,14 +54,14 @@ document.onkeyup = handleKeyUp;
 
 iniciarSonido("soundDisparoBola");
 var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
-var dt = 1 / 70 ;
+var dt = 1 / 70;
 
 var render = function () {
     requestAnimationFrame(render);
     world.step(dt);
-    sphereBodyPelotas[indiceShereBody].position.y=5;
-    pelotas[indicePelotas].position.copy(sphereBodyPelotas[indiceShereBody].position);
-    
+    sphereBodyPelota.position.y = 5;
+    pelota.position.copy(sphereBodyPelota.position);
+
     cannonDebugRenderer.update();
     //puntaje+=0.01;
     //Pongo la logica de las palancas aca
@@ -105,14 +105,12 @@ var render = function () {
     //Verificar cuando una pelota pierde segun la posicion de esta en z
 
 
-    if (pelotas[indicePelotas].position.z > 108) { //Verificar esa posicion 200
+    if (pelota.position.z > 108) { //Verificar esa posicion 200
         totalPelotas -= 1;
-        scene.remove(pelotas[indicePelotas]);
         if (totalPelotas > 0) {
-            indicePelotas += 1;
-            indiceShereBody++;
-            indiceMatPelota++;
-            crearPelota();
+            pelota.position.set(60, 5, 60);
+            sphereBodyPelota.position.set(60, 5, 65);
+            //crearPelota();
         } else {
             GameOver = true;
         }
@@ -163,10 +161,11 @@ function crearTablero() {
 
     crearRebote(45, 10, 30, 0, 40, 0, 0.84, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal del rebote triangular derecho
     crearRebote(20, 10, 46, 0, 33, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular derecho
-
     crearRebote(48, 10, -29, 0, 42, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal del rebote triangular izquierda
     crearRebote(20, 10, -46, 0, 33, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular izquierda
-    
+
+    crearRebote(10, 10, 59, 0, 2, 0, 2.2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular izquierda
+
     // Piso
     geometryPiso = new THREE.BoxGeometry(170, 4, 300);
     var texturePiso = new THREE.TextureLoader().load("images/floor_texture.jpg");
@@ -179,28 +178,28 @@ function crearTablero() {
 
     var pisoBody;
     var pisoMaterial = new CANNON.Material();
-    var pisoShape = new CANNON.Box(new CANNON.Vec3(170/2, 4/2, 300/2));
+    var pisoShape = new CANNON.Box(new CANNON.Vec3(170 / 2, 4 / 2, 300 / 2));
     //groundShape.rotation.copy(plane.rotation);
     pisoBody = new CANNON.Body({ mass: 0, shape: pisoShape, material: pisoMaterial });
     pisoBody.position.copy(piso.position);
 
     world.add(pisoBody);
 
-    var mat1_piso = new CANNON.ContactMaterial(pisoMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
+    var mat1_piso = new CANNON.ContactMaterial(pisoMaterial, matPelota, { friction: 0.0, restitution: 0.0 });
     world.addContactMaterial(mat1_piso);
 
     var vidrioBody;
     var vidrioMaterial = new CANNON.Material();
-    var vidrioShape = new CANNON.Box(new CANNON.Vec3(170/2, 1/2, 300/2));
+    var vidrioShape = new CANNON.Box(new CANNON.Vec3(170 / 2, 1 / 2, 300 / 2));
     //groundShape.rotation.copy(plane.rotation);
     vidrioBody = new CANNON.Body({ mass: 0, shape: vidrioShape, material: vidrioMaterial });
     vidrioBody.position.copy(piso.position);
 
     world.add(vidrioBody);
 
-    var mat1_vidrio = new CANNON.ContactMaterial(vidrioMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
-    
-    vidrioBody.position.y+=10;
+    var mat1_vidrio = new CANNON.ContactMaterial(vidrioMaterial, matPelota, { friction: 0.0, restitution: 0.0 });
+
+    vidrioBody.position.y += 10;
     world.addContactMaterial(mat1_vidrio);
 
 
@@ -276,14 +275,14 @@ function crearFisicaPared(plane, width, height, rotationX, rotationY, rotationZ)
     //se crea una superficie con la que la esfera va a tener contacto
     var wallBody;
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height+5 , 0.5));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height + 5, 0.5));
     //groundShape.rotation.copy(plane.rotation);
     wallBody = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial });
     wallBody.position.copy(plane.position);
     wallBody.quaternion.setFromEuler(rotationX, rotationY, rotationZ, 'XYZ');
     world.add(wallBody);
 
-    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.5, restitution: 0.0 });
+    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelota, { friction: 0.5, restitution: 0.0 });
     world.addContactMaterial(mat1_wall);
 
 
@@ -311,14 +310,14 @@ function crearFisicaRebote(plane, width, height, rotationX, rotationY, rotationZ
     //se crea una superficie con la que la esfera va a tener contacto
     var wallBody;
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height+5 , 0.5));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height + 5, 0.5));
     //groundShape.rotation.copy(plane.rotation);
     wallBody = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial });
     wallBody.position.copy(plane.position);
     wallBody.quaternion.setFromEuler(rotationX, rotationY, rotationZ, 'XYZ');
     world.add(wallBody);
 
-    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 2 });
+    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelota, { friction: 0.0, restitution: 1 });
     world.addContactMaterial(mat1_wall);
 
 
@@ -344,32 +343,28 @@ function crearFisicaResorte() {
     //var rot = new CANNON.Vec3(-90 * Math.PI / 180, 0, 0)
     //groundBody.quaternion.setFromAxisAngle(rot, (Math.PI / 2))
     world.add(groundBody);
-    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 }); //Restitution hace que rebote
+    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelota, { friction: 0.0, restitution: 0 }); //Restitution hace que rebote
     world.addContactMaterial(mat1_ground);
 }
 function crearPelota(ObjetoPelota) {
-    var pelota = new THREE.Mesh(geometryPelota, materialPelota);
+    pelota = new THREE.Mesh(geometryPelota, materialPelota);
     if (ObjetoPelota == undefined) {
-       // pelota.position.set(60, 5, 60); // Posicion de entrada
-       pelota.position.set(20, 5, 10); // Posicion de entrada
+        pelota.position.set(60, 5, 60); // Posicion de entrada
+        //pelota.position.set(20, 5, 10); // Posicion de entrada
     } else {
         pelota.position.copy(ObjetoPelota.position).add(new THREE.Vector3(3, 0, 3));
     }
     scene.add(pelota);
-    pelotas.push(pelota);
-    pelota = null;
     crearFisicaPelota();
 }
 function crearFisicaPelota() {
-    var matPel = new CANNON.Material();
-    matPelotas.push(matPel);
+    matPelota = new CANNON.Material();
     var mass = 2, radius = 1;
     var sphereShape = new CANNON.Sphere(radius); // Step 1
-    var sphBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matPelotas[indiceMatPelota] }); // Step 2
-    sphereBodyPelotas.push(sphBdy);
-    //sphereBodyPelotas[indiceShereBody].position.set(60, 5, 65);
-    sphereBodyPelotas[indiceShereBody].position.set(25, 5, -15);
-    world.add(sphereBodyPelotas[indiceShereBody]); // Step 3
+    sphereBodyPelota = new CANNON.Body({ mass: mass, shape: sphereShape, material: matPelota }); // Step 2
+    sphereBodyPelota.position.set(60, 5, 65);
+    //sphereBodyPelotas[indiceShereBody].position.set(25, 5, -15);
+    world.add(sphereBodyPelota); // Step 3
 
 }
 function crearRebotes(radioS, radioI, height, segRad, posX, posY, posZ) {
@@ -378,19 +373,19 @@ function crearRebotes(radioS, radioI, height, segRad, posX, posY, posZ) {
     mesh = new THREE.Mesh(bumper, material);
     mesh.position.set(posX, posY, posZ);
     scene.add(mesh);
-    crearFisicaRebotes(radioS,mesh);
+    crearFisicaRebotes(radioS, mesh);
 }
-function crearFisicaRebotes(radio,rebote){
+function crearFisicaRebotes(radio, rebote) {
     var matRebote = new CANNON.Material();
     var mass = 0;
-    console.log("Rebote posicion X "+rebote.position.x);
-    console.log("Rebote posicion Y "+rebote.position.y);
-    console.log("Rebote posicion Z "+rebote.position.z);
-    var sphereShape = new CANNON.Sphere(radio+3); // Step 1
-    var reboteBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matRebote}); // Step 2
+    console.log("Rebote posicion X " + rebote.position.x);
+    console.log("Rebote posicion Y " + rebote.position.y);
+    console.log("Rebote posicion Z " + rebote.position.z);
+    var sphereShape = new CANNON.Sphere(radio + 3); // Step 1
+    var reboteBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matRebote }); // Step 2
     reboteBdy.position.copy(rebote.position);
     world.add(reboteBdy); // Step 3
-    var mat1_ground = new CANNON.ContactMaterial(matRebote, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 2.0 }); //Restitution hace que rebote
+    var mat1_ground = new CANNON.ContactMaterial(matRebote, matPelota, { friction: 0.0, restitution: 1 }); //Restitution hace que rebote
     world.addContactMaterial(mat1_ground);
 }
 function crearRebotesTriangulares() {
@@ -408,9 +403,6 @@ function crearRebotesTriangulares() {
     mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     mesh.position.set(44, 2, -30);
     scene.add(mesh);
-
-
-
 
 
     Shp = new THREE.Shape();
@@ -448,6 +440,19 @@ function crearRebotesTriangulares() {
     mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
     mesh.position.set(45, 2, 25);
     scene.add(mesh);
+
+    Shp = new THREE.Shape();
+    Shp.moveTo(0, 0);
+    Shp.lineTo(5, 5);
+    Shp.lineTo(5, -5);
+    Shp.lineTo(0, 0);
+    extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+    geometry = new THREE.ExtrudeGeometry(Shp, extrudeSettings);
+    mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+    mesh.rotation.set(-90 * Math.PI / 180, 0, 0);
+    mesh.position.set(57, 2, -2);
+    scene.add(mesh);
+
 }
 function handleKeyDown(e) {
     //console.log("Entro oprimo hacia abajo");
