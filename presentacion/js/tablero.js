@@ -14,13 +14,13 @@ document.body.appendChild(renderer.domElement);
 //controls.maxDistance = 1000;
 camera.rotation.order = 'YXZ';
 camera.position.set(0, 100, 180);
-camera.rotation.x=5.6;
+camera.rotation.x = 5.6;
 //console.log("Posicion camara X " +camera.rotation.x);
 //console.log("Posicion camara Y " +camera.rotation.y);
 //console.log("Posicion camara Z " +camera.rotation.z);
 
 var material, mesh;
-var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, indicePelotas=0; GameOver = false;
+var geometryPelota, materialPelota, geometryPiso, materialPiso, piso, pelotas = [], totalPelotas = 3, indicePelotas = 0; GameOver = false;
 materialPelota = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444, specular: 0x555555, shininess: 200 });
 geometryPelota = new THREE.SphereGeometry(2.25, 12, 12);
 var rPad, lPad, geometryRPad, geometryLPad, materialRPad, materialLPad, rPadUp = false, lPadUp = false, rPadPos = new THREE.Vector3(19.9, 3.75, 72), lPadPos = new THREE.Vector3(-19.9, 3.75, 72),
@@ -29,10 +29,17 @@ var bumper;
 var paredes = [];
 var resorte, resorteAbajo = false;
 var puntaje = 0;
+var matPelotas = [], indiceMatPelota = 0, sphereBodyPelotas = [], indiceShereBody = 0;
 var light = new THREE.DirectionalLight(0xffffff);
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
 
+//1) Crear un mundo
+var world = new CANNON.World();
+//por defecto la gravedad esta en el eje z
+world.gravity.set(0, 0, 10);
+//world.broadphase = new CANNON.NaiveBroadphase();
+crearPelota();
 crearTablero();
 crearResorte();
 crearPared(300, 15, -85, 0, -40, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzquierda");//Pared izquierda
@@ -41,14 +48,19 @@ crearPared(170, 15, 0, 0, -190, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_text
 crearPared(170, 15, 0, 0, 110, 0, 0, 0, parseInt('0xccffcc'), 'images/wall_texture.jpg', "paredAtras");//Pared atras
 crearPared(190, 280, 0, -7.5, -30, Math.PI / 2, 0, 0, parseInt('FA8072'), 'images/floor_texture.jpg', "piso"); //Piso
 
-crearPelota();
+
 document.onkeydown = handleKeyDown;
 document.onkeyup = handleKeyUp;
 
 iniciarSonido("soundDisparoBola");
+var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
+var dt = 1 / 60;
 
 var render = function () {
     requestAnimationFrame(render);
+    world.step(dt);
+    pelotas[indicePelotas].position.copy(sphereBodyPelotas[indiceShereBody].position);
+    cannonDebugRenderer.update();
     //puntaje+=0.01;
     //Pongo la logica de las palancas aca
     if (lPadUp) {
@@ -79,29 +91,33 @@ var render = function () {
     if (resorteAbajo) {
         if (resorte.position.z <= 90) {//Para que no baje despues de cierto limite
             resorte.position.z += 0.1;
+            groundBody.position.copy(resorte.position);
         }
     }
     else {
         if (resorte.position.z >= 77) {
             resorte.position.z -= 1.2;
+            groundBody.position.copy(resorte.position);
         }
     }
     //Verificar cuando una pelota pierde segun la posicion de esta en z
-    
-    
-    if(pelotas[indicePelotas].position.z>108){ //Verificar esa posicion 200
-        totalPelotas-=1;
+
+
+    if (pelotas[indicePelotas].position.z > 108) { //Verificar esa posicion 200
+        totalPelotas -= 1;
         scene.remove(pelotas[indicePelotas]);
-        if(totalPelotas>0){
-            indicePelotas+=1;
+        if (totalPelotas > 0) {
+            indicePelotas += 1;
+            indiceShereBody++;
+            indiceMatPelota++;
             crearPelota();
-        }else{
-            GameOver=true;
+        } else {
+            GameOver = true;
         }
-        
-        
+
+
     }
-    
+
 
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
@@ -200,7 +216,7 @@ function crearTablero() {
     lPad.position.set(lPadPos.x, lPadPos.y, lPadPos.z);
     scene.add(lPad);
 
-    
+
 
 }
 function crearPared(width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, colorPared, textura, nombre) {
@@ -219,7 +235,37 @@ function crearPared(width, height, positionX, positionY, positionZ, rotationX, r
 
     plane.name = nombre;
     paredes.push(plane);
+    crearFisicaPared(plane, width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ);
     scene.add(plane);
+}
+function crearFisicaPared(plane, width, height, positionX, positionY, positionZ, rotationX, rotationY, rotationZ) {
+    //se crea una superficie con la que la esfera va a tener contacto
+    var wallBody;
+    var wallMaterial = new CANNON.Material();
+    var groundShape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, 0.1 / 2));
+    //groundShape.rotation.copy(plane.rotation);
+    wallBody = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial });
+    var rot = new CANNON.Vec3(rotationX, rotationY, rotationZ)
+    wallBody.position.copy(plane.position);
+    wallBody.quaternion.setFromEuler(rotationX, rotationY, rotationZ, 'XYZ');
+    //wallBody.quaternion.set(rotationX* Math.PI / 180,rotationY* Math.PI / 180,rotationZ* Math.PI / 180);
+    //wallBody.quaternion.copy(plane.quaternion);
+
+    //console.log("posicion cannon:",wallBody.position);
+
+    console.log("plane.rotation:", plane.rotation);
+    console.log("wallBody.quaternion:", wallBody.quaternion);
+    console.log("plane.quaternion:", plane.quaternion);
+
+    //se crea un tipo de contacto entre la esfera y la superficie.
+
+
+    world.add(wallBody);
+
+    var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 });
+    world.addContactMaterial(mat1_wall);
+
+
 }
 function crearResorte() {
     var geometry = new THREE.BoxGeometry(3, 18, 5);
@@ -228,6 +274,21 @@ function crearResorte() {
     resorte.position.set(60, 5, 77);
     resorte.rotation.set(-90 * Math.PI / 180, 0, 0);
     scene.add(resorte);
+    crearFisicaResorte();
+}
+var groundBody;
+function crearFisicaResorte() {
+    //se crea una superficie con la que la esfera va a tener contacto
+    var groundMaterial = new CANNON.Material();
+    var groundShape = new CANNON.Box(new CANNON.Vec3(3, 3, 10));
+    groundBody = new CANNON.Body({ mass: 0, shape: groundShape, material: groundMaterial });
+    groundBody.position.copy(resorte.position);
+    //groundBody.position.z-=9;
+    //var rot = new CANNON.Vec3(-90 * Math.PI / 180, 0, 0)
+    //groundBody.quaternion.setFromAxisAngle(rot, (Math.PI / 2))
+    world.add(groundBody);
+    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelotas[indiceMatPelota], { friction: 0.0, restitution: 0.0 }); //Restitution hace que rebote
+    world.addContactMaterial(mat1_ground);
 }
 function crearPelota(ObjetoPelota) {
     var pelota = new THREE.Mesh(geometryPelota, materialPelota);
@@ -239,6 +300,19 @@ function crearPelota(ObjetoPelota) {
     scene.add(pelota);
     pelotas.push(pelota);
     pelota = null;
+    crearFisicaPelota();
+}
+function crearFisicaPelota() {
+    var matPel = new CANNON.Material();
+    matPelotas.push(matPel);
+    var mass = 10, radius = 1;
+    var sphereShape = new CANNON.Sphere(radius); // Step 1
+    console.log();
+    var sphBdy = new CANNON.Body({ mass: mass, shape: sphereShape, material: matPelotas[indiceMatPelota] }); // Step 2
+    sphereBodyPelotas.push(sphBdy);
+    sphereBodyPelotas[indiceShereBody].position.set(60, 5, 65);
+    world.add(sphereBodyPelotas[indiceShereBody]); // Step 3
+
 }
 function crearRebotes(radioS, radioI, height, segRad, posX, posY, posZ) {
     bumper = new THREE.CylinderGeometry(radioS, radioI, height, segRad); //RadioArriba,RadioAbajo,Altura,SegmentosRadiales
@@ -352,16 +426,22 @@ function actualizarPalancaDerecha(data) {
         rPadUp = false;
 }
 function empujarResorte() {
-    if(GameOver==true){//Cuando se haya perdido el juego y se quiera volver a jugar
-        pelotas=[];
-        pelotas=3;
-        indicePelotas=0;
+    if (GameOver == true) {//Cuando se haya perdido el juego y se quiera volver a jugar
+        pelotas = [];
+        matPelotas = [];
+        sphereBodyPelotas = []
+        pelotas = 3;
+        indicePelotas = 0;
+        indiceMatPelota = 0;
+        indiceShereBody
         crearPelota();
-        GameOver=false;
-    }else{
+        GameOver = false;
+        puntaje = 0;
+        document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
+    } else {
         resorteAbajo = true;
     }
-    
+
 }
 function dispararPelota(data) {
     //Aca me llegaria la potencia con la que deberia dispararse la pelota
