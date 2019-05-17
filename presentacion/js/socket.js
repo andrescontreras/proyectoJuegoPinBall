@@ -1,15 +1,30 @@
 // eslint-disable-next-line no-undef
 var socket = io.connect(null, { 'forceNew': true });
-socket.on('messages', function (data) {
+socket.on('Left', function (data) {
     console.log(data);
-    if(data =='Ldown' || data =='Lhold' ||data =='Lup' ||
-    data =='Rdown' || data =='Rhold' || data =='Rup'){
-        var tablero = require('./tablero');
-        tablero.actualizarPalancas(data);
-    }
+    actualizarPalancaIzquierda(data);
     render(data);
 });
-
+socket.on('Right', function (data) {
+    console.log(data);
+    actualizarPalancaDerecha(data);
+    render(data);
+});
+socket.on('Start', function (data) {
+    console.log(data);
+    empujarResorte();
+    render(data);
+});
+socket.on('Disparo', function (data) {
+    console.log(data);
+    dispararPelota(data);
+    render(data);
+});
+socket.on('tension', function (data) {
+    console.log(data);
+    tensionResorte(data);
+    render(data);
+});
 function render(data) {
     var list = document.getElementById('messages');
     var entry = document.createElement('li');
