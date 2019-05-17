@@ -32,6 +32,8 @@ var resorte, resorteAbajo = false;
 var puntaje = 0, sumarPuntaje=false;
 var matPelota, sphereBodyPelota,groundBody, reboteParedBody;
 var light = new THREE.DirectionalLight(0xffffff);
+var delay = 200;
+var toques = 1; 
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
 
@@ -55,18 +57,19 @@ document.onkeyup = handleKeyUp;
 
 iniciarSonido("soundDisparoBola");
 var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
-var dt = 1 / 70;
+var dt = 1 / 120;
 
 var render = function () {
+   setTimeout(r,delay);
+};
+var r = function(){
     requestAnimationFrame(render);
     world.step(dt);
     sphereBodyPelota.position.y = 5;
     pelota.position.copy(sphereBodyPelota.position);
 
-    cannonDebugRenderer.update();
-    if(sumarPuntaje){
-        puntaje+=1;
-    }
+    // cannonDebugRenderer.update();
+    //puntaje+=0.01;
     //Pongo la logica de las palancas aca
     if (lPadUp) {
         //console.log("lPaduUP RENDER");
@@ -83,6 +86,7 @@ var render = function () {
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
         }
     }
+    
     if (rPadUp) {
         //console.log("rrrrPaduUP RENDER");
         if (rPad.rotation.y >= -0.6764) {
@@ -96,20 +100,17 @@ var render = function () {
             cannonPalancaDerecha.quaternion.setFromEuler(rPad.rotation.x, rPad.rotation.y, rPad.rotation.z, 'XYZ');
         }
     }
+    
     //Pongo la lógica del resorte acá
     if (resorteAbajo) {
         if (resorte.position.z <= 90) {//Para que no baje despues de cierto limite
-            resorte.position.z += 0.1;
+            resorte.position.z += 0.05;
             groundBody.position.copy(resorte.position);
         }
     }
     else {
-        
-        if (resorte.position.z > 77) {
-            //console.log("Entro");
-            //console.log(resorte.position.z);
-            sumarPuntaje = true;
-            resorte.position.z -= 1.5;
+        if (resorte.position.z >= 77) {
+            resorte.position.z -= 0.8;
             groundBody.position.copy(resorte.position);
         }
     }
@@ -144,10 +145,9 @@ var render = function () {
 
     }
 
-
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
-};
+}
 function crearTablero() {
 
     // Estructura del tablero
@@ -277,7 +277,7 @@ function crearTablero() {
     //se crea una superficie con la que la esfera va a tener contacto
 
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5, 3));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(30 / 2, 10 + 5, 3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaDerecha = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial, type: CANNON.Body.KINEMATIC });
     cannonPalancaDerecha.position.copy(rPad.position);
@@ -300,7 +300,7 @@ function crearTablero() {
     //se crea una superficie con la que la esfera va a tener contacto
 
     var wallMaterial1 = new CANNON.Material();
-    var groundShape1 = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5,3));
+    var groundShape1 = new CANNON.Box(new CANNON.Vec3(30 / 2, 10 + 5,3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaIzquierda = new CANNON.Body({ mass: 0, shape: groundShape1, material: wallMaterial1, type: CANNON.Body.KINEMATIC });
     cannonPalancaIzquierda.position.copy(lPad.position);
@@ -403,7 +403,8 @@ function crearFisicaResorte() {
     //var rot = new CANNON.Vec3(-90 * Math.PI / 180, 0, 0)
     //groundBody.quaternion.setFromAxisAngle(rot, (Math.PI / 2))
     world.add(groundBody);
-    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelota, { friction: 0.0, restitution: 0 }); //Restitution hace que rebote
+    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelota, { friction: 0.0, restitution: 0
+     }); //Restitution hace que rebote
     world.addContactMaterial(mat1_ground);
 }
 function crearPelota(ObjetoPelota) {
@@ -555,6 +556,8 @@ function actualizarPalancaIzquierda(data) {
     console.log("En tablero, palanca izquierda, imprimo " + data);
     if (data == "down")
         lPadUp = true;
+        delay = delay + (toques * 0.5);
+        toques++;
     if (data == "up")
         lPadUp = false;
         console.log("paliszq");
@@ -564,6 +567,8 @@ function actualizarPalancaDerecha(data) {
     console.log("En tablero, palanca derecha, imprimo " + data);
     if (data == "down")
         rPadUp = true;
+        delay = delay + (toques * 0.5);
+        toques++;
     if (data == "up")
         rPadUp = false;
 }
@@ -585,6 +590,8 @@ function dispararPelota(data) {
     
     resorteAbajo = false;
     //Logica de disparo
+    delay = delay + (toques * 0.5);
+        toques++;
 }
 function tensionResorte(data){
     resorteAbajo = true;

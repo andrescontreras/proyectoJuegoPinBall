@@ -22,7 +22,7 @@ function iniciar() {
         // create a completely default instance
         buttonL = new five.Button(2);
         buttonR = new five.Button(4);
-       // buttonStart = new five.Button(6);
+        buttonStart = new five.Button(6);
         sensor = new five.Sensor("A0");
 
 
@@ -66,13 +66,13 @@ function iniciar() {
             SocketController.emit('Right', "up");
         });
 
-/*
+
         // "down" the button is pressed
         buttonStart.on("down", function () {
             console.log("Startdown");
             SocketController.emit('Start', "down");
         });
-        */
+        
 
         var anteriorPot = 10; 
         var disp = false;
