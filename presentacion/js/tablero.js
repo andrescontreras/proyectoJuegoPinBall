@@ -79,13 +79,11 @@ var r = function(){
             puntaje += 1;
             console.log(lPad.rotation.y);
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
-            debugger;
         }
     } else {
         if (lPad.rotation.y >= -0.5236) {
             lPad.rotation.y -= 0.02;
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
-            debugger;
         }
     }
     
