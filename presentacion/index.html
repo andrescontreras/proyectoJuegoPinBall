@@ -6,21 +6,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Socket</title>
-  
-    <link href="./css/styles.css" rel="stylesheet" type="text/css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/socket.js"></script>
-    
+
+  <link href="./css/styles.css" rel="stylesheet" type="text/css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/socket.js"></script>
+
 
 </head>
 
 <body>
+  <div id=divScore>
+      <p id=pelotas>Pelotas: 3</p>
+    <p id=puntaje>Puntaje: 0</p>
+  </div>
+  <div style="display: none;">
+		<audio id="soundDisparoBola" preload="auto">
+			<source src="sounds/sonido_inicio.wav" type="audio/wav" ></source>
+		</audio> 
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js "></script>-->
+
   <script src="./js/three.js"></script>
+  <script src="./js/build/cannon.js"></script>
+    <script src="./js/build/cannon.demo.js"></script>
+    <script src="../libs/dat.gui.js"></script>
+    <!--<script src="./js/libs/Three.js"></script>-->
+    <script src="./js/libs/TrackballControls.js"></script>
+    <script src="./js/libs/Detector.js"></script>
+    <script src="./js/libs/Stats.js"></script>
+    <script src="./js/libs/smoothie.js"></script>
+    <script src="./js/CannonDebugRenderer.js"></script>
   <script src="./js/OrbitControls.js"></script>
   <script src="./js/tablero.js"></script>
 
-
+  
+<!--
   <h1>Socket</h1>
   <ul id="messages"></ul>
   <br />
@@ -29,7 +48,7 @@
     <input type="text" name="" id="texto" placeholder="texto" />
     <input type="submit" value="Enviar" />
   </form>
-
+-->
 
 </body>
 
