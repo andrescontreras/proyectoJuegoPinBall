@@ -64,6 +64,9 @@ var render = function () {
 };
 var r = function(){
     requestAnimationFrame(render);
+    if(sumarPuntaje){
+        puntaje+=1;
+    }
     world.step(dt);
     sphereBodyPelota.position.y = 5;
     pelota.position.copy(sphereBodyPelota.position);
@@ -109,7 +112,8 @@ var r = function(){
         }
     }
     else {
-        if (resorte.position.z >= 77) {
+        if (resorte.position.z > 77) {
+            sumarPuntaje = true;
             resorte.position.z -= 0.8;
             groundBody.position.copy(resorte.position);
         }
