@@ -32,6 +32,8 @@ var resorte, resorteAbajo = false;
 var puntaje = 0;
 var matPelota, sphereBodyPelota;
 var light = new THREE.DirectionalLight(0xffffff);
+var delay = 200;
+var toques = 1; 
 light.position.set(-200, 30, 100).normalize();
 scene.add(light);
 
@@ -55,9 +57,12 @@ document.onkeyup = handleKeyUp;
 
 iniciarSonido("soundDisparoBola");
 var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
-var dt = 1 / 70;
+var dt = 1 / 120;
 
 var render = function () {
+   setTimeout(r,delay);
+};
+var r = function(){
     requestAnimationFrame(render);
     world.step(dt);
     sphereBodyPelota.position.y = 5;
@@ -74,13 +79,16 @@ var render = function () {
             puntaje += 1;
             console.log(lPad.rotation.y);
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
+            debugger;
         }
     } else {
         if (lPad.rotation.y >= -0.5236) {
             lPad.rotation.y -= 0.02;
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
+            debugger;
         }
     }
+    
     if (rPadUp) {
         console.log("rrrrPaduUP RENDER");
         if (rPad.rotation.y >= -0.6764) {
@@ -94,6 +102,7 @@ var render = function () {
             cannonPalancaDerecha.quaternion.setFromEuler(rPad.rotation.x, rPad.rotation.y, rPad.rotation.z, 'XYZ');
         }
     }
+    
     //Pongo la lógica del resorte acá
     if (resorteAbajo) {
         if (resorte.position.z <= 90) {//Para que no baje despues de cierto limite
@@ -124,10 +133,9 @@ var render = function () {
 
     }
 
-
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
-};
+}
 function crearTablero() {
 
     // Estructura del tablero
@@ -537,6 +545,8 @@ function actualizarPalancaIzquierda(data) {
     console.log("En tablero, palanca izquierda, imprimo " + data);
     if (data == "down")
         lPadUp = true;
+        delay = delay + (toques * 0.5);
+        toques++;
     if (data == "up")
         lPadUp = false;
         console.log("paliszq");
@@ -546,6 +556,8 @@ function actualizarPalancaDerecha(data) {
     console.log("En tablero, palanca derecha, imprimo " + data);
     if (data == "down")
         rPadUp = true;
+        delay = delay + (toques * 0.5);
+        toques++;
     if (data == "up")
         rPadUp = false;
 }
@@ -572,6 +584,8 @@ function dispararPelota(data) {
     
     resorteAbajo = false;
     //Logica de disparo
+    delay = delay + (toques * 0.5);
+        toques++;
 }
 function tensionResorte(data){
     resorteAbajo = true;
