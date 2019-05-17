@@ -107,6 +107,7 @@ var render = function () {
 
     if (pelota.position.z > 108) { //Verificar esa posicion 200
         totalPelotas -= 1;
+        document.getElementById("pelotas").innerHTML = "Pelotas: " + totalPelotas;
         if (totalPelotas > 0) {
             pelota.position.set(60, 5, 60);
             sphereBodyPelota.position.set(60, 5, 65);
@@ -126,7 +127,7 @@ function crearTablero() {
 
     // Estructura del tablero
     crearPared(30, 10, -55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredIzqRebIzq");//Pared izquierda al lado del rebote triangular izquierdo cerca a la palanca
-    crearPared(30, 10, 55, 0, 35, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDerRebDer");//Pared derecha al lado del rebote triangular derecho cerca a la palanca
+    crearPared(37, 10, 55, 0, 31, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDerRebDer");//Pared derecha al lado del rebote triangular derecho cerca a la palanca
 
     crearPared(40, 10, 38, 0, 59, 0, Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagPalDer");//Pared diagonal derecho al lado de la palanca derecha
     crearPared(40, 10, -38, 0, 59, 0, 5 * Math.PI / 6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiagPalIzq");//Pared diagonal izquierda al lado de la palanca izquierda
@@ -164,7 +165,13 @@ function crearTablero() {
     crearRebote(48, 10, -29, 0, 42, 0, 2.24, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");//Pared diagonal del rebote triangular izquierda
     crearRebote(20, 10, -46, 0, 33, 0, Math.PI / 2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular izquierda
 
-    crearRebote(10, 10, 59, 0, 2, 0, 2.2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared vertical del rebote triangular izquierda
+    crearRebote(10, 10, 59, 0, 2, 0, 2.2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared diagonal abajo del rebote triangular cuando sale la pelota
+    crearRebote(10, 10, 59, 0, -6, 0, 0.9, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared diagonal arriba del rebote triangular cuando sale la pelota
+
+    crearRebote(21, 10, 45, 0, -36, 0, 0.6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared diagonal arriba del rebote triangular cuando sale la pelota
+    crearRebote(21, 10, 45, 0, -24, 0, 2.6, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared diagonal abajo del rebote triangular cuando sale la pelota
+
+    crearRebote(43, 10, -64, 0, -7, 0, Math.PI/2, 0, parseInt('0xccffcc'), '/images/wall_texture.jpg', "paredDiag5CircDer");// Pared diagonal arriba del rebote triangular cuando sale la pelota
 
     // Piso
     geometryPiso = new THREE.BoxGeometry(170, 4, 300);
