@@ -539,6 +539,8 @@ function actualizarPalancaIzquierda(data) {
         lPadUp = true;
     if (data == "up")
         lPadUp = false;
+        console.log("paliszq");
+        
 }
 function actualizarPalancaDerecha(data) {
     console.log("En tablero, palanca derecha, imprimo " + data);
@@ -567,12 +569,13 @@ function empujarResorte() {
 }
 function dispararPelota(data) {
     //Aca me llegaria la potencia con la que deberia dispararse la pelota
-<<<<<<< HEAD
     
-=======
->>>>>>> a34b84cdb01504b3137fc7c4038a29ffec24cff7
     resorteAbajo = false;
     //Logica de disparo
+}
+function tensionResorte(data){
+    resorteAbajo = true;
+    
 }
 function iniciarSonido(sonido) {
     if (document.getElementById(sonido).currentTime) {
