@@ -71,7 +71,7 @@ var render = function () {
     if (lPadUp) {
         //console.log("lPaduUP RENDER");
         if (lPad.rotation.y <= 0.6764) {
-            lPad.rotation.y += 0.1;
+            lPad.rotation.y += 0.2;
 
             //puntaje += 1;
             console.log(lPad.rotation.y);
@@ -79,20 +79,20 @@ var render = function () {
         }
     } else {
         if (lPad.rotation.y >= -0.5236) {
-            lPad.rotation.y -= 0.1;
+            lPad.rotation.y -= 0.02;
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
         }
     }
     if (rPadUp) {
         //console.log("rrrrPaduUP RENDER");
         if (rPad.rotation.y >= -0.6764) {
-            rPad.rotation.y -= 0.1;
+            rPad.rotation.y -= 0.2;
             //puntaje -= 1;
             cannonPalancaDerecha.quaternion.setFromEuler(rPad.rotation.x, rPad.rotation.y, rPad.rotation.z, 'XYZ');
         }
     } else {
         if (rPad.rotation.y <= 0.5236) {
-            rPad.rotation.y += 0.1;
+            rPad.rotation.y += 0.02;
             cannonPalancaDerecha.quaternion.setFromEuler(rPad.rotation.x, rPad.rotation.y, rPad.rotation.z, 'XYZ');
         }
     }
@@ -270,46 +270,46 @@ function crearTablero() {
     materialRPad = new THREE.MeshPhongMaterial({ color: 0xcccccc, specular: 0x999999, shininess: 175 });
     rPad = new THREE.Mesh(geometryRPad, materialRPad);
     rPad.rotation.set(rPadRot.x, rPadRot.y, rPadRot.z);
-    rPad.position.set(rPadPos.x, rPadPos.y, rPadPos.z);
+    rPad.position.set(rPadPos.x, rPadPos.y, rPadPos.z+4);
     scene.add(rPad);
 
     // ==================================================================
     //se crea una superficie con la que la esfera va a tener contacto
 
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5, 0.5));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5, 3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaDerecha = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial, type: CANNON.Body.KINEMATIC });
     cannonPalancaDerecha.position.copy(rPad.position);
     cannonPalancaDerecha.quaternion.setFromEuler(rPad.rotation.x, rPad.rotation.y, rPad.rotation.z, 'XYZ');
     world.add(cannonPalancaDerecha);
 
-    // var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelota, { friction: 0.0, restitution: 1 });
-    // world.addContactMaterial(mat1_wall);
-    // ==================================================================
+     var mat1_wall = new CANNON.ContactMaterial(wallMaterial, matPelota, { friction: 0.0, restitution: 1 });
+     world.addContactMaterial(mat1_wall);
+// ==================================================================
     // Palanca izquierda
     geometryLPad = geometryRPad.clone();
     geometryLPad.applyMatrix(new THREE.Matrix4().makeRotationY(180 * Math.PI / 180));
     materialLPad = new THREE.MeshPhongMaterial({ color: 0xeeeeee, specular: 0x1c1c1c, shininess: 200 });
     lPad = new THREE.Mesh(geometryLPad, materialLPad);
     lPad.rotation.set(lPadRot.x, lPadRot.y, lPadRot.z);
-    lPad.position.set(lPadPos.x, lPadPos.y, lPadPos.z);
+    lPad.position.set(lPadPos.x, lPadPos.y, lPadPos.z+4 );
     scene.add(lPad);
 
     // ==================================================================
     //se crea una superficie con la que la esfera va a tener contacto
 
     var wallMaterial1 = new CANNON.Material();
-    var groundShape1 = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5, 0.5));
+    var groundShape1 = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5,3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaIzquierda = new CANNON.Body({ mass: 0, shape: groundShape1, material: wallMaterial1, type: CANNON.Body.KINEMATIC });
     cannonPalancaIzquierda.position.copy(lPad.position);
     cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
     world.add(cannonPalancaIzquierda);
 
-    // var mat1_wall1 = new CANNON.ContactMaterial(wallMaterial1, matPelota, { friction: 0.0, restitution: 0.6 });
-    // world.addContactMaterial(mat1_wall1);
-    // ==================================================================
+     var mat1_wall1 = new CANNON.ContactMaterial(wallMaterial1, matPelota, { friction: 0.0, restitution: 1 });
+     world.addContactMaterial(mat1_wall1);
+// ==================================================================
 
 
 
@@ -557,6 +557,8 @@ function actualizarPalancaIzquierda(data) {
         lPadUp = true;
     if (data == "up")
         lPadUp = false;
+        console.log("paliszq");
+        
 }
 function actualizarPalancaDerecha(data) {
     console.log("En tablero, palanca derecha, imprimo " + data);
@@ -580,8 +582,13 @@ function empujarResorte() {
 }
 function dispararPelota(data) {
     //Aca me llegaria la potencia con la que deberia dispararse la pelota
+    
     resorteAbajo = false;
     //Logica de disparo
+}
+function tensionResorte(data){
+    resorteAbajo = true;
+    
 }
 function iniciarSonido(sonido) {
     if (document.getElementById(sonido).currentTime) {

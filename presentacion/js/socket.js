@@ -20,6 +20,11 @@ socket.on('Disparo', function (data) {
     dispararPelota(data);
     render(data);
 });
+socket.on('tension', function (data) {
+    console.log(data);
+    tensionResorte(data);
+    render(data);
+});
 function render(data) {
     var list = document.getElementById('messages');
     var entry = document.createElement('li');
