@@ -68,7 +68,7 @@ var r = function(){
     sphereBodyPelota.position.y = 5;
     pelota.position.copy(sphereBodyPelota.position);
 
-    cannonDebugRenderer.update();
+    // cannonDebugRenderer.update();
     //puntaje+=0.01;
     //Pongo la logica de las palancas aca
     if (lPadUp) {
@@ -106,13 +106,13 @@ var r = function(){
     //Pongo la lógica del resorte acá
     if (resorteAbajo) {
         if (resorte.position.z <= 90) {//Para que no baje despues de cierto limite
-            resorte.position.z += 0.1;
+            resorte.position.z += 0.05;
             groundBody.position.copy(resorte.position);
         }
     }
     else {
         if (resorte.position.z >= 77) {
-            resorte.position.z -= 1.5;
+            resorte.position.z -= 0.8;
             groundBody.position.copy(resorte.position);
         }
     }
@@ -265,7 +265,7 @@ function crearTablero() {
     //se crea una superficie con la que la esfera va a tener contacto
     
     var wallMaterial = new CANNON.Material();
-    var groundShape = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5, 3));
+    var groundShape = new CANNON.Box(new CANNON.Vec3(30 / 2, 10 + 5, 3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaDerecha = new CANNON.Body({ mass: 0, shape: groundShape, material: wallMaterial, type: CANNON.Body.KINEMATIC });
     cannonPalancaDerecha.position.copy(rPad.position);
@@ -288,7 +288,7 @@ function crearTablero() {
     //se crea una superficie con la que la esfera va a tener contacto
     
     var wallMaterial1 = new CANNON.Material();
-    var groundShape1 = new CANNON.Box(new CANNON.Vec3(50 / 2, 10 + 5,3));
+    var groundShape1 = new CANNON.Box(new CANNON.Vec3(30 / 2, 10 + 5,3));
     //groundShape.rotation.copy(plane.rotation);
     cannonPalancaIzquierda= new CANNON.Body({ mass: 0, shape: groundShape1, material: wallMaterial1, type: CANNON.Body.KINEMATIC });
     cannonPalancaIzquierda.position.copy(lPad.position);
@@ -393,7 +393,8 @@ function crearFisicaResorte() {
     //var rot = new CANNON.Vec3(-90 * Math.PI / 180, 0, 0)
     //groundBody.quaternion.setFromAxisAngle(rot, (Math.PI / 2))
     world.add(groundBody);
-    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelota, { friction: 0.0, restitution: 0 }); //Restitution hace que rebote
+    var mat1_ground = new CANNON.ContactMaterial(groundMaterial, matPelota, { friction: 0.0, restitution: 0
+     }); //Restitution hace que rebote
     world.addContactMaterial(mat1_ground);
 }
 function crearPelota(ObjetoPelota) {
