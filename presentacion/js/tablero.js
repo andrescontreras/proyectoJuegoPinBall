@@ -64,14 +64,15 @@ var render = function () {
 };
 var r = function(){
     requestAnimationFrame(render);
+    if(sumarPuntaje){
+        puntaje+=1;
+    }
     world.step(dt);
     sphereBodyPelota.position.y = 5;
     pelota.position.copy(sphereBodyPelota.position);
 
-    //cannonDebugRenderer.update();
-    if(sumarPuntaje){
-        puntaje+=1;
-    }
+    // cannonDebugRenderer.update();
+    //puntaje+=0.01;
     //Pongo la logica de las palancas aca
     if (lPadUp) {
         //console.log("lPaduUP RENDER");
@@ -81,13 +82,11 @@ var r = function(){
             //puntaje += 1;
             console.log(lPad.rotation.y);
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
-            debugger;
         }
     } else {
         if (lPad.rotation.y >= -0.5236) {
             lPad.rotation.y -= 0.02;
             cannonPalancaIzquierda.quaternion.setFromEuler(lPad.rotation.x, lPad.rotation.y, lPad.rotation.z, 'XYZ');
-            debugger;
         }
     }
     
@@ -113,7 +112,8 @@ var r = function(){
         }
     }
     else {
-        if (resorte.position.z >= 77) {
+        if (resorte.position.z > 77) {
+            sumarPuntaje = true;
             resorte.position.z -= 0.8;
             groundBody.position.copy(resorte.position);
         }
@@ -152,6 +152,7 @@ var r = function(){
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
 }
+// a
 function crearTablero() {
 
     // Estructura del tablero
