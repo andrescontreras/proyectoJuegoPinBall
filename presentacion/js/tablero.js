@@ -152,6 +152,7 @@ var r = function(){
     document.getElementById("puntaje").innerHTML = "Puntaje: " + puntaje;
     renderer.render(scene, camera);
 }
+// a
 function crearTablero() {
 
     // Estructura del tablero
